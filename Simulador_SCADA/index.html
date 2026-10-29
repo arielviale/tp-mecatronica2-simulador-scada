@@ -1,0 +1,996 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MECATRÓNICA II — Simulador Electroneumático &amp; SCADA Clasificador Industrial</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="app">
+    <!-- ==================== BARRA SUPERIOR INSTITUCIONAL ==================== -->
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-logo">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="6" width="20" height="12" rx="2"/>
+            <circle cx="7" cy="12" r="2"/>
+            <circle cx="17" cy="12" r="2"/>
+            <path d="M7 10h10M7 14h10"/>
+          </svg>
+        </div>
+        <div>
+          <h1>
+            ESTACIÓN MECATRÓNICA DE CLASIFICACIÓN ELECTRONEUMÁTICA
+            <span class="brand-tag">Simulador Propio + SCADA ISA-101</span>
+          </h1>
+          <small>UTN Facultad Regional Paraná · Mecatrónica II · Alumno: Hugo Ariel Martinez · Norma ISO 1219 / IEC 60617</small>
+        </div>
+      </div>
+
+      <nav class="tabs">
+        <button class="tab active" data-view="estudio" id="tab-estudio">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+          1. Simulador Electroneumático + SCADA
+        </button>
+        <button class="tab" data-view="bloques" id="tab-bloques">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+          2. Diagrama en Bloques, GRAFCET y E/S
+        </button>
+        <button class="tab" data-view="alarmas" id="tab-alarmas">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          3. Alarmas ISA-18.2 y Pruebas
+          <span class="badge" id="badge-alarmas" hidden>0</span>
+        </button>
+      </nav>
+
+      <div class="top-right">
+        <a class="pill" href="../Resolucion/Informe_TP_Modelado_y_Simulacion_Mecatronica.pdf" target="_blank" rel="noopener" style="text-decoration:none; color:#38bdf8; border-color:rgba(56,189,248,0.4);" title="Abrir o Descargar el Informe Técnico Completo en PDF (6 páginas A4)">
+          <span>📄</span>
+          <span>Informe Técnico PDF</span>
+        </a>
+        <button class="pill" id="btn-toggle-audio" title="Activar / Silenciar Efectos Neumáticos y Sirena Web Audio API">
+          <span id="ico-audio">🔊</span>
+          <span id="txt-audio">Audio Neumático: ON</span>
+        </button>
+        <div class="pill" title="Motor de Simulación Física a 60 FPS">
+          <span class="dot" id="dot-sim-state"></span>
+          <span id="txt-sim-mode">Motor Tiempo Real: 60 Hz</span>
+        </div>
+        <div class="clock" id="clock-display">--:--:--</div>
+      </div>
+    </header>
+
+    <!-- ==================== TIRA DE KPIs EN TIEMPO REAL ==================== -->
+    <section class="kpi-strip">
+      <div class="kpi-box">
+        <div>
+          <div class="kpi-label">Estado Planta</div>
+          <div class="kpi-val" id="kpi-plant-state">REPOSO</div>
+        </div>
+        <span class="kpi-indicator" id="pill-plant-state">STOP</span>
+      </div>
+      <div class="kpi-box">
+        <div>
+          <div class="kpi-label">Motor Cinta (M1)</div>
+          <div class="kpi-val" id="kpi-motor-m1">0 mm/s</div>
+        </div>
+        <span class="kpi-indicator" id="pill-motor-m1">KM1: 0</span>
+      </div>
+      <div class="kpi-box">
+        <div>
+          <div class="kpi-label">Red Neumática (FRL)</div>
+          <div class="kpi-val" id="kpi-pressure">6.0 bar</div>
+        </div>
+        <span class="kpi-indicator on" id="pill-pressure">P1: OK</span>
+      </div>
+      <div class="kpi-box">
+        <div>
+          <div class="kpi-label">Cilindro A (1A1 Metal)</div>
+          <div class="kpi-val" id="kpi-cyl-a">0 mm</div>
+        </div>
+        <span class="kpi-indicator" id="pill-cyl-a">1B1=1</span>
+      </div>
+      <div class="kpi-box">
+        <div>
+          <div class="kpi-label">Cilindro B (2A1 Plást.)</div>
+          <div class="kpi-val" id="kpi-cyl-b">0 mm</div>
+        </div>
+        <span class="kpi-indicator" id="pill-cyl-b">2B1=1</span>
+      </div>
+      <div class="kpi-box">
+        <div>
+          <div class="kpi-label">Etapa GRAFCET</div>
+          <div class="kpi-val" id="kpi-grafcet">E0: Espera</div>
+        </div>
+        <span class="kpi-indicator on" id="pill-grafcet">CICLO</span>
+      </div>
+      <div class="kpi-box">
+        <div>
+          <div class="kpi-label">Producción (M / P / D)</div>
+          <div class="kpi-val" id="kpi-counters">0 / 0 / 0</div>
+        </div>
+        <span class="kpi-indicator on" id="pill-total-prod">TOT: 0</span>
+      </div>
+    </section>
+
+    <!-- ======================================================================= -->
+    <!-- VISTA 1: SIMULADOR ELECTRONEUMÁTICO + GEMELO DIGITAL SCADA              -->
+    <!-- ======================================================================= -->
+    <main class="view active" id="view-estudio">
+      <!-- BARRA DE COMANDOS DE OPERACIÓN -->
+      <div class="control-bar">
+        <div class="btn-group">
+          <button class="btn btn-start" id="btn-start" title="Pulsador de Marcha S1 (Arranca cinta y habilita ciclo automático)">
+            ▶ MARCHA (S1)
+          </button>
+          <button class="btn btn-stop" id="btn-stop" title="Pulsador de Parada Normal S2">
+            ⏹ PARADA (S2)
+          </button>
+          <button class="btn btn-estop" id="btn-estop" title="Seta de Parada de Emergencia S0 (Desenergiza KM1, 1Y1 y 2Y1)">
+            🛑 PARADA EMERGENCIA (S0)
+          </button>
+          <button class="btn btn-reset" id="btn-reset" title="Rearme de Fallas y Condiciones Iniciales (S3)">
+            ↺ REARME / RESET (S3)
+          </button>
+        </div>
+
+        <div class="btn-group">
+          <span style="font-size: 11px; color: var(--text-secondary); font-weight: 700; margin-right: 4px;">ALIMENTAR PIEZA:</span>
+          <button class="btn btn-piece-metal" id="btn-spawn-metal" title="Depositar Pieza Metálica (Acero) en la cinta — Activa B1 y B2 ➔ Cilindro 1A1">
+            ⚙️ + Pieza Metálica (Acero)
+          </button>
+          <button class="btn btn-piece-plastic" id="btn-spawn-plastic" title="Depositar Pieza Plástica (Polímero) en la cinta — Activa B1 y B3 ➔ Cilindro 2A1">
+            🟧 + Pieza Plástica (Polímero)
+          </button>
+          <button class="btn btn-piece-reject" id="btn-spawn-reject" title="Depositar Pieza No Clasificable (Descarte) — Pasa hasta Tolva Final 3">
+            📦 + Pieza Descarte
+          </button>
+          <button class="btn" id="btn-auto-feed" title="Generador continuo automático de piezas cada 4.5 segundos">
+            🔄 Alimentación Auto: <span id="txt-auto-feed">OFF</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- WORKSPACE DIVIDIDO: PLANTA SCADA (IZQ) + ESQUEMA ELECTRONEUMÁTICO (DER) -->
+      <div class="main-workspace">
+        
+        <!-- COLUMNA IZQUIERDA: GEMELO DIGITAL + CRONOGRAMA ESPACIO-FASE -->
+        <div class="col-stack">
+          <!-- CARD 1: GEMELO DIGITAL 2D DE LA PLANTA -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#00e599" stroke-width="2.2"><path d="M2 12h20M2 12l4-4m-4 4l4 4"/></svg>
+                Gemelo Digital Mecatrónico — Cinta Transportadora y Expulsores Neumáticos
+              </div>
+              <div class="card-subtitle" id="txt-process-banner">Esperando orden de Marcha (S1)...</div>
+            </div>
+            <div class="card-body">
+              <div class="svg-canvas-wrap">
+                <svg id="svg-plant" viewBox="0 0 760 405" preserveAspectRatio="xMidYMid meet">
+                  <defs>
+                    <linearGradient id="beltGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                      <stop offset="0%" stop-color="#1e293b"/>
+                      <stop offset="50%" stop-color="#0f172a"/>
+                      <stop offset="100%" stop-color="#1e293b"/>
+                    </linearGradient>
+                    <linearGradient id="cylBody" x1="0%" y1="0%" x2="100%" y2="0%">
+                      <stop offset="0%" stop-color="#334155"/>
+                      <stop offset="50%" stop-color="#64748b"/>
+                      <stop offset="100%" stop-color="#334155"/>
+                    </linearGradient>
+                    <linearGradient id="metalPieceGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stop-color="#60a5fa"/>
+                      <stop offset="50%" stop-color="#2563eb"/>
+                      <stop offset="100%" stop-color="#1d4ed8"/>
+                    </linearGradient>
+                    <linearGradient id="plasticPieceGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stop-color="#fbbf24"/>
+                      <stop offset="50%" stop-color="#f59e0b"/>
+                      <stop offset="100%" stop-color="#b45309"/>
+                    </linearGradient>
+                  </defs>
+
+                  <!-- Fondo Técnico de Celda Industrial -->
+                  <rect x="10" y="10" width="740" height="385" rx="8" fill="#0d1520" stroke="#1e2d3d" stroke-width="1.5"/>
+
+                  <!-- Cuadro Informativo Superior Izquierdo (100% libre de superposición con cilindros) -->
+                  <g transform="translate(20, 18)">
+                    <rect x="0" y="0" width="218" height="60" rx="6" fill="#131d2a" stroke="#28384c" stroke-width="1.2"/>
+                    <text x="12" y="17" fill="#38bdf8" font-size="9.5" font-weight="800" font-family="JetBrains Mono">PLANTA MECATRÓNICA (ISA-101)</text>
+                    <text x="12" y="33" fill="#cbd5e1" font-size="8.5" font-family="Inter">Clasificador Electroneumático 3 Vías</text>
+                    <text x="12" y="48" fill="#00e599" font-size="8.2" font-weight="700" font-family="JetBrains Mono">FRL 0Z1: 6.0 bar · Control: 24V DC</text>
+                  </g>
+
+                  <!-- ==================== TORRETA LUMINOSA ANDON (H1, H2, H3) ==================== -->
+                  <g transform="translate(650, 18)">
+                    <rect x="0" y="0" width="88" height="72" rx="6" fill="#131d2a" stroke="#28384c" stroke-width="1.2"/>
+                    <text x="44" y="14" fill="#94a3b8" font-size="8.5" font-weight="700" text-anchor="middle">BALIZA ANDON</text>
+                    <!-- H1 Verde -->
+                    <circle cx="20" cy="36" r="10" fill="#1b2a22" stroke="#334155" stroke-width="1.5" id="lamp-h1"/>
+                    <text x="20" y="58" fill="#94a3b8" font-size="8" font-family="JetBrains Mono" text-anchor="middle">H1</text>
+                    <!-- H2 Amarillo -->
+                    <circle cx="44" cy="36" r="10" fill="#2c2517" stroke="#334155" stroke-width="1.5" id="lamp-h2"/>
+                    <text x="44" y="58" fill="#94a3b8" font-size="8" font-family="JetBrains Mono" text-anchor="middle">H2</text>
+                    <!-- H3 Rojo -->
+                    <circle cx="68" cy="36" r="10" fill="#2d161e" stroke="#334155" stroke-width="1.5" id="lamp-h3"/>
+                    <text x="68" y="58" fill="#94a3b8" font-size="8" font-family="JetBrains Mono" text-anchor="middle">H3</text>
+                  </g>
+
+                  <!-- ==================== CILINDRO A (1A1 - EXPULSOR METAL) ==================== -->
+                  <g transform="translate(270, 22)">
+                    <text x="35" y="9" fill="#38bdf8" font-size="9.5" font-weight="800" font-family="JetBrains Mono" text-anchor="middle">CILINDRO 1A1 (METAL)</text>
+                    <!-- Camisa del cilindro -->
+                    <rect x="13" y="16" width="44" height="92" rx="4" fill="url(#cylBody)" stroke="#94a3b8" stroke-width="1.5"/>
+                    <!-- Cámara trasera y delantera coloreadas por presión -->
+                    <rect x="16" y="19" width="38" height="40" fill="#1e293b" id="plant-cylA-cap"/>
+                    <rect x="16" y="62" width="38" height="43" fill="#0284c7" opacity="0.55" id="plant-cylA-rod-cam"/>
+                    <!-- Sensores Reed 1B1 (a0) y 1B2 (a1) -->
+                    <rect x="62" y="22" width="44" height="16" rx="3" class="sensor-pill active" id="plant-sens-1b1"/>
+                    <text x="84" y="33" fill="#e2e8f0" font-size="8.2" font-family="JetBrains Mono" font-weight="700" text-anchor="middle">1B1(a0)</text>
+                    <rect x="62" y="88" width="44" height="16" rx="3" class="sensor-pill" id="plant-sens-1b2"/>
+                    <text x="84" y="99" fill="#e2e8f0" font-size="8.2" font-family="JetBrains Mono" font-weight="700" text-anchor="middle">1B2(a1)</text>
+                    <!-- Grupo móvil: Émbolo + Vástago + Empujador -->
+                    <g id="plant-piston-a" transform="translate(0, 0)">
+                      <rect x="16" y="24" width="38" height="9" fill="#f8fafc" stroke="#0f172a" stroke-width="1"/>
+                      <rect x="30" y="33" width="10" height="82" fill="#cbd5e1" stroke="#475569" stroke-width="1"/>
+                      <rect x="18" y="114" width="34" height="9" rx="2" fill="#38bdf8" stroke="#0284c7" stroke-width="1.2"/>
+                    </g>
+                  </g>
+
+                  <!-- ==================== CILINDRO B (2A1 - EXPULSOR PLÁSTICO) ==================== -->
+                  <g transform="translate(465, 22)">
+                    <text x="35" y="9" fill="#fbbf24" font-size="9.5" font-weight="800" font-family="JetBrains Mono" text-anchor="middle">CILINDRO 2A1 (PLÁST.)</text>
+                    <!-- Camisa del cilindro -->
+                    <rect x="13" y="16" width="44" height="92" rx="4" fill="url(#cylBody)" stroke="#94a3b8" stroke-width="1.5"/>
+                    <rect x="16" y="19" width="38" height="40" fill="#1e293b" id="plant-cylB-cap"/>
+                    <rect x="16" y="62" width="38" height="43" fill="#0284c7" opacity="0.55" id="plant-cylB-rod-cam"/>
+                    <!-- Sensores Reed 2B1 (b0) y 2B2 (b1) -->
+                    <rect x="62" y="22" width="44" height="16" rx="3" class="sensor-pill active" id="plant-sens-2b1"/>
+                    <text x="84" y="33" fill="#e2e8f0" font-size="8.2" font-family="JetBrains Mono" font-weight="700" text-anchor="middle">2B1(b0)</text>
+                    <rect x="62" y="88" width="44" height="16" rx="3" class="sensor-pill" id="plant-sens-2b2"/>
+                    <text x="84" y="99" fill="#e2e8f0" font-size="8.2" font-family="JetBrains Mono" font-weight="700" text-anchor="middle">2B2(b1)</text>
+                    <!-- Grupo móvil: Émbolo + Vástago + Empujador -->
+                    <g id="plant-piston-b" transform="translate(0, 0)">
+                      <rect x="16" y="24" width="38" height="9" fill="#f8fafc" stroke="#0f172a" stroke-width="1"/>
+                      <rect x="30" y="33" width="10" height="82" fill="#cbd5e1" stroke="#475569" stroke-width="1"/>
+                      <rect x="18" y="114" width="34" height="9" rx="2" fill="#fbbf24" stroke="#d97706" stroke-width="1.2"/>
+                    </g>
+                  </g>
+
+                  <!-- ==================== CINTA TRANSPORTADORA PRINCIPAL ==================== -->
+                  <g transform="translate(85, 148)">
+                    <!-- Bastidor metálico -->
+                    <rect x="0" y="0" width="560" height="74" rx="10" fill="url(#beltGrad)" stroke="#475569" stroke-width="2.2"/>
+                    <!-- Bandas de transporte animadas -->
+                    <line x1="18" y1="37" x2="542" y2="37" stroke="#334155" stroke-width="52" stroke-dasharray="14 14" id="belt-stripes"/>
+                    <!-- Guías laterales -->
+                    <line x1="10" y1="3" x2="205" y2="3" stroke="#64748b" stroke-width="3"/>
+                    <line x1="255" y1="3" x2="400" y2="3" stroke="#64748b" stroke-width="3"/>
+                    <line x1="450" y1="3" x2="550" y2="3" stroke="#64748b" stroke-width="3"/>
+                    <line x1="10" y1="71" x2="195" y2="71" stroke="#64748b" stroke-width="3"/>
+                    <line x1="255" y1="71" x2="390" y2="71" stroke="#64748b" stroke-width="3"/>
+                    <line x1="450" y1="71" x2="550" y2="71" stroke="#64748b" stroke-width="3"/>
+
+                    <!-- Rodillo Motriz Izquierdo + Motor M1 -->
+                    <circle cx="18" cy="37" r="24" fill="#1e293b" stroke="#94a3b8" stroke-width="2"/>
+                    <g id="roller-left" transform="translate(18, 37)">
+                      <line x1="-18" y1="0" x2="18" y2="0" stroke="#38bdf8" stroke-width="2.5"/>
+                      <line x1="0" y1="-18" x2="0" y2="18" stroke="#38bdf8" stroke-width="2.5"/>
+                    </g>
+
+                    <!-- Rodillo Conducido Derecho -->
+                    <circle cx="542" cy="37" r="24" fill="#1e293b" stroke="#94a3b8" stroke-width="2"/>
+                    <g id="roller-right" transform="translate(542, 37)">
+                      <line x1="-18" y1="0" x2="18" y2="0" stroke="#38bdf8" stroke-width="2.5"/>
+                      <line x1="0" y1="-18" x2="0" y2="18" stroke="#38bdf8" stroke-width="2.5"/>
+                    </g>
+                  </g>
+
+                  <!-- Motor Eléctrico M1 acoplado a la izquierda -->
+                  <g transform="translate(18, 156)">
+                    <rect x="0" y="6" width="56" height="46" rx="6" fill="#1e293b" stroke="#64748b" stroke-width="2" id="motor-m1-body"/>
+                    <line x1="10" y1="14" x2="46" y2="14" stroke="#475569" stroke-width="2"/>
+                    <line x1="10" y1="22" x2="46" y2="22" stroke="#475569" stroke-width="2"/>
+                    <line x1="10" y1="30" x2="46" y2="30" stroke="#475569" stroke-width="2"/>
+                    <text x="28" y="45" fill="#e2e8f0" font-size="9.5" font-family="JetBrains Mono" font-weight="700" text-anchor="middle">M1 (KM1)</text>
+                    <rect x="56" y="23" width="12" height="12" fill="#64748b"/>
+                  </g>
+
+                  <!-- ==================== SENSORES EN CINTA (B1, B2, B3) ==================== -->
+                  <!-- Sensor B1: Óptico Ingreso (x=155) -->
+                  <g transform="translate(145, 114)">
+                    <rect x="0" y="0" width="42" height="22" rx="4" class="sensor-pill" id="plant-sens-b1"/>
+                    <text x="21" y="14" fill="#e2e8f0" font-size="8.5" font-family="JetBrains Mono" font-weight="700" text-anchor="middle">B1 ÓPT</text>
+                    <line x1="21" y1="22" x2="21" y2="108" stroke="#00e599" stroke-width="1.5" stroke-dasharray="3 3" opacity="0.45" id="beam-b1"/>
+                  </g>
+
+                  <!-- Sensor B2: Inductivo Metal en Estación 1 (x=305) -->
+                  <g transform="translate(205, 114)">
+                    <rect x="0" y="0" width="56" height="22" rx="4" class="sensor-pill" id="plant-sens-b2"/>
+                    <text x="28" y="14" fill="#38bdf8" font-size="8.2" font-family="JetBrains Mono" font-weight="700" text-anchor="middle">B2 INDUC</text>
+                    <polyline points="56,11 100,11 100,108" fill="none" stroke="#38bdf8" stroke-width="1.8" stroke-dasharray="3 3" opacity="0.5" id="beam-b2"/>
+                  </g>
+
+                  <!-- Sensor B3: Capacitivo/Óptico Plástico en Estación 2 (x=500) -->
+                  <g transform="translate(398, 114)">
+                    <rect x="0" y="0" width="56" height="22" rx="4" class="sensor-pill" id="plant-sens-b3"/>
+                    <text x="28" y="14" fill="#fbbf24" font-size="8.2" font-family="JetBrains Mono" font-weight="700" text-anchor="middle">B3 CAPAC</text>
+                    <polyline points="56,11 102,11 102,108" fill="none" stroke="#fbbf24" stroke-width="1.8" stroke-dasharray="3 3" opacity="0.5" id="beam-b3"/>
+                  </g>
+
+                  <!-- ==================== RAMPAS Y CAJAS COLECTORAS ==================== -->
+                  <!-- Rampa 1: Piezas Metálicas (x=270..340) -->
+                  <g transform="translate(262, 225)">
+                    <path d="M10,0 L76,0 L88,148 L-2,148 Z" fill="#132032" stroke="#2563eb" stroke-width="1.8"/>
+                    <line x1="8" y1="35" x2="78" y2="35" stroke="#1e3a8a" stroke-width="1.2"/>
+                    <line x1="4" y1="70" x2="82" y2="70" stroke="#1e3a8a" stroke-width="1.2"/>
+                    <rect x="4" y="102" width="78" height="40" rx="4" fill="#0f172a" stroke="#3b82f6" stroke-width="1.2"/>
+                    <text x="43" y="118" fill="#60a5fa" font-size="9" font-weight="700" font-family="JetBrains Mono" text-anchor="middle">TOLVA 1: METAL</text>
+                    <text x="43" y="135" fill="#ffffff" font-size="13" font-weight="800" font-family="JetBrains Mono" text-anchor="middle" id="svg-cnt-metal">0 pzs</text>
+                  </g>
+
+                  <!-- Rampa 2: Piezas Plásticas (x=465..535) -->
+                  <g transform="translate(457, 225)">
+                    <path d="M10,0 L76,0 L88,148 L-2,148 Z" fill="#231c12" stroke="#d97706" stroke-width="1.8"/>
+                    <line x1="8" y1="35" x2="78" y2="35" stroke="#78350f" stroke-width="1.2"/>
+                    <line x1="4" y1="70" x2="82" y2="70" stroke="#78350f" stroke-width="1.2"/>
+                    <rect x="4" y="102" width="78" height="40" rx="4" fill="#0f172a" stroke="#f59e0b" stroke-width="1.2"/>
+                    <text x="43" y="118" fill="#fbbf24" font-size="9" font-weight="700" font-family="JetBrains Mono" text-anchor="middle">TOLVA 2: PLÁST.</text>
+                    <text x="43" y="135" fill="#ffffff" font-size="13" font-weight="800" font-family="JetBrains Mono" text-anchor="middle" id="svg-cnt-plastic">0 pzs</text>
+                  </g>
+
+                  <!-- Tolva 3: Final de Línea / Descarte (x=655) -->
+                  <g transform="translate(652, 142)">
+                    <rect x="0" y="0" width="84" height="95" rx="6" fill="#18202c" stroke="#64748b" stroke-width="1.8"/>
+                    <text x="42" y="25" fill="#cbd5e1" font-size="8.5" font-weight="700" font-family="JetBrains Mono" text-anchor="middle">TOLVA 3</text>
+                    <text x="42" y="38" fill="#94a3b8" font-size="8" font-family="JetBrains Mono" text-anchor="middle">FINAL / DESC.</text>
+                    <text x="42" y="68" fill="#ffffff" font-size="14" font-weight="800" font-family="JetBrains Mono" text-anchor="middle" id="svg-cnt-reject">0 pzs</text>
+                  </g>
+
+                  <!-- CAPA DINÁMICA DE PIEZAS EN MOVIMIENTO -->
+                  <g id="pieces-layer"></g>
+                </svg>
+              </div>
+
+              <!-- CONTROLES FÍSICOS DE LABORATORIO (PRESIÓN FRL Y VELOCIDAD ESTRANGULADORES) -->
+              <div class="sliders-row">
+                <div class="slider-box">
+                  <label>Presión Red FRL (P1) <span id="lbl-slider-bar">6.0 bar</span></label>
+                  <input type="range" id="slider-pressure" min="2.0" max="8.0" step="0.2" value="6.0">
+                </div>
+                <div class="slider-box">
+                  <label>Regulador Caudal 1V2/2V2 <span id="lbl-slider-flow">80 %</span></label>
+                  <input type="range" id="slider-flow" min="30" max="100" step="5" value="80">
+                </div>
+                <div class="slider-box">
+                  <label>Velocidad Cinta M1 <span id="lbl-slider-belt">100 %</span></label>
+                  <input type="range" id="slider-belt" min="50" max="150" step="10" value="100">
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- CARD 2: DIAGRAMA ESPACIO-FASE EN VIVO -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2.2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                Diagrama Espacio-Fase y Señales en Tiempo Real (Cronograma Dinámico)
+              </div>
+              <div class="card-subtitle">Muestreo continuo de carrera (0..100 mm) y estados lógicos</div>
+            </div>
+            <div class="card-body" style="padding: 8px 12px;">
+              <canvas id="canvas-state-diagram" width="680" height="165" style="width: 100%; height: 165px; background: #0b1119; border: 1px solid #223142; border-radius: 6px;"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- COLUMNA DERECHA: SIMULADOR ELECTRONEUMÁTICO EN VIVO (NEUMÁTICO ISO 1219 + ELÉCTRICO IEC 60617) -->
+        <div class="col-stack">
+          <div class="card" style="flex: 1;">
+            <div class="card-header">
+              <div class="card-title">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#ffb703" stroke-width="2.2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+                Esquema Electroneumático Interactivo en Vivo — Norma ISO 1219 / IEC 60617
+              </div>
+              <div class="card-subtitle">Azul = Presión 6 bar · Rojo = Línea 24V activa (Click en S0, S1, S2)</div>
+            </div>
+            <div class="card-body">
+              <div class="schematic-canvas-wrap">
+                <svg id="svg-schematic" viewBox="0 0 780 610" preserveAspectRatio="xMidYMid meet">
+                  <!-- ==================== SECCIÓN 1: CIRCUITO NEUMÁTICO DE POTENCIA (ISO 1219) ==================== -->
+                  <rect x="10" y="8" width="760" height="292" rx="6" fill="rgba(15, 23, 42, 0.55)" stroke="#243548" stroke-width="1.2"/>
+                  <text x="22" y="24" fill="#38bdf8" font-size="10.5" font-weight="800" font-family="JetBrains Mono">1. CIRCUITO NEUMÁTICO DE POTENCIA (NORMA ISO 1219-1)</text>
+
+                  <!-- Regla de Posición Cilindro 1A1 -->
+                  <g transform="translate(120, 44)">
+                    <line x1="40" y1="8" x2="170" y2="8" stroke="#64748b" stroke-width="1.5"/>
+                    <line x1="45" y1="2" x2="45" y2="14" stroke="#00e599" stroke-width="2"/>
+                    <text x="45" y="-2" fill="#00e599" font-size="9" font-family="JetBrains Mono" font-weight="700" text-anchor="middle">1B1 (a0)</text>
+                    <line x1="155" y1="2" x2="155" y2="14" stroke="#38bdf8" stroke-width="2"/>
+                    <text x="155" y="-2" fill="#38bdf8" font-size="9" font-family="JetBrains Mono" font-weight="700" text-anchor="middle">1B2 (a1)</text>
+
+                    <!-- Cilindro 1A1 Doble Efecto Horizontal -->
+                    <text x="12" y="42" fill="#e2e8f0" font-size="11" font-weight="800" font-family="JetBrains Mono" text-anchor="end">1A1</text>
+                    <rect x="20" y="20" width="120" height="42" fill="#162231" stroke="#cbd5e1" stroke-width="2"/>
+                    <!-- Cámaras neumáticas izquierda (avance) y derecha (retroceso) -->
+                    <rect x="22" y="22" width="16" height="38" fill="#1e293b" id="fsim-cylA-left"/>
+                    <rect x="44" y="22" width="94" height="38" fill="#0077ff" opacity="0.45" id="fsim-cylA-right"/>
+                    <!-- Émbolo + Vástago móvil -->
+                    <g id="fsim-piston-a" transform="translate(0, 0)">
+                      <rect x="38" y="21" width="8" height="40" fill="#f8fafc" stroke="#0f172a" stroke-width="1.2"/>
+                      <rect x="46" y="37" width="115" height="8" fill="#e2e8f0" stroke="#475569" stroke-width="1.2"/>
+                      <circle cx="42" cy="41" r="3" fill="#00e599"/>
+                    </g>
+                  </g>
+
+                  <!-- Regla de Posición Cilindro 2A1 -->
+                  <g transform="translate(475, 44)">
+                    <line x1="40" y1="8" x2="170" y2="8" stroke="#64748b" stroke-width="1.5"/>
+                    <line x1="45" y1="2" x2="45" y2="14" stroke="#00e599" stroke-width="2"/>
+                    <text x="45" y="-2" fill="#00e599" font-size="9" font-family="JetBrains Mono" font-weight="700" text-anchor="middle">2B1 (b0)</text>
+                    <line x1="155" y1="2" x2="155" y2="14" stroke="#fbbf24" stroke-width="2"/>
+                    <text x="155" y="-2" fill="#fbbf24" font-size="9" font-family="JetBrains Mono" font-weight="700" text-anchor="middle">2B2 (b1)</text>
+
+                    <!-- Cilindro 2A1 Doble Efecto Horizontal -->
+                    <text x="12" y="42" fill="#e2e8f0" font-size="11" font-weight="800" font-family="JetBrains Mono" text-anchor="end">2A1</text>
+                    <rect x="20" y="20" width="120" height="42" fill="#162231" stroke="#cbd5e1" stroke-width="2"/>
+                    <rect x="22" y="22" width="16" height="38" fill="#1e293b" id="fsim-cylB-left"/>
+                    <rect x="44" y="22" width="94" height="38" fill="#0077ff" opacity="0.45" id="fsim-cylB-right"/>
+                    <!-- Émbolo + Vástago móvil -->
+                    <g id="fsim-piston-b" transform="translate(0, 0)">
+                      <rect x="38" y="21" width="8" height="40" fill="#f8fafc" stroke="#0f172a" stroke-width="1.2"/>
+                      <rect x="46" y="37" width="115" height="8" fill="#e2e8f0" stroke="#475569" stroke-width="1.2"/>
+                      <circle cx="42" cy="41" r="3" fill="#fbbf24"/>
+                    </g>
+                  </g>
+
+                  <!-- Tuberías entre Válvulas 5/2 y Cilindros (1A1 y 2A1) -->
+                  <!-- Vía 4 (Avance 1A1) y Vía 2 (Retroceso 1A1) -->
+                  <path d="M150,184 L150,106" class="pneu-line exhaust" id="pipe-1A-4"/>
+                  <path d="M248,184 L248,106" class="pneu-line pressurized" id="pipe-1A-2"/>
+                  <!-- Estranguladores 1V2 / 1V3 -->
+                  <rect x="140" y="128" width="20" height="22" rx="2" fill="#162231" stroke="#94a3b8" stroke-width="1.4"/>
+                  <text x="134" y="143" fill="#94a3b8" font-size="8.5" font-family="JetBrains Mono" text-anchor="end">1V2</text>
+                  <rect x="238" y="128" width="20" height="22" rx="2" fill="#162231" stroke="#94a3b8" stroke-width="1.4"/>
+                  <text x="264" y="143" fill="#94a3b8" font-size="8.5" font-family="JetBrains Mono">1V3</text>
+
+                  <!-- Vía 4 (Avance 2A1) y Vía 2 (Retroceso 2A1) -->
+                  <path d="M505,184 L505,106" class="pneu-line exhaust" id="pipe-2A-4"/>
+                  <path d="M603,184 L603,106" class="pneu-line pressurized" id="pipe-2A-2"/>
+                  <!-- Estranguladores 2V2 / 2V3 -->
+                  <rect x="495" y="128" width="20" height="22" rx="2" fill="#162231" stroke="#94a3b8" stroke-width="1.4"/>
+                  <text x="489" y="143" fill="#94a3b8" font-size="8.5" font-family="JetBrains Mono" text-anchor="end">2V2</text>
+                  <rect x="593" y="128" width="20" height="22" rx="2" fill="#162231" stroke="#94a3b8" stroke-width="1.4"/>
+                  <text x="619" y="143" fill="#94a3b8" font-size="8.5" font-family="JetBrains Mono">2V3</text>
+
+                  <!-- ==================== ELECTROVÁLVULA 5/2 MONOESTABLE 1V1 (1Y1) ==================== -->
+                  <g transform="translate(125, 184)">
+                    <text x="-21" y="2" fill="#cbd5e1" font-size="8.5" font-weight="700" font-family="JetBrains Mono" text-anchor="middle">1V1 (5/2)</text>
+                    <!-- Solenoide 1Y1 (Izquierda) -->
+                    <rect x="-42" y="8" width="42" height="28" rx="3" class="coil-box" id="fsim-sol-1y1"/>
+                    <line x1="-32" y1="8" x2="-10" y2="36" stroke="#94a3b8" stroke-width="1.4"/>
+                    <text x="-21" y="25" fill="#ffffff" font-size="9.5" font-family="JetBrains Mono" font-weight="700" text-anchor="middle">1Y1</text>
+
+                    <!-- Cuerpo 2 posiciones (Cuadro Izq = Activo, Cuadro Der = Reposo) -->
+                    <rect x="0" y="0" width="70" height="44" fill="#162231" stroke="#94a3b8" stroke-width="1.8" id="fsim-1v1-boxL"/>
+                    <rect x="70" y="0" width="70" height="44" fill="#1e3a5f" stroke="#38bdf8" stroke-width="2" id="fsim-1v1-boxR"/>
+                    <!-- Flechas internas Cuadro Izquierdo (1->4, 2->3) -->
+                    <line x1="35" y1="44" x2="22" y2="4" stroke="#cbd5e1" stroke-width="1.6"/>
+                    <line x1="52" y1="0" x2="52" y2="40" stroke="#94a3b8" stroke-width="1.6"/>
+                    <!-- Flechas internas Cuadro Derecho (1->2, 4->5) -->
+                    <line x1="105" y1="44" x2="122" y2="4" stroke="#38bdf8" stroke-width="1.8"/>
+                    <line x1="88" y1="0" x2="88" y2="40" stroke="#94a3b8" stroke-width="1.6"/>
+                    <!-- Resorte de retorno (Derecha) -->
+                    <polyline points="140,14 147,8 154,28 161,8 168,28 174,18" fill="none" stroke="#cbd5e1" stroke-width="1.6"/>
+                    <!-- Numeración ISO 4, 2, 5, 1, 3 -->
+                    <text x="14" y="-4" fill="#94a3b8" font-size="8" font-family="JetBrains Mono">4</text>
+                    <text x="130" y="-4" fill="#94a3b8" font-size="8" font-family="JetBrains Mono">2</text>
+                    <text x="80" y="56" fill="#38bdf8" font-size="8" font-family="JetBrains Mono" font-weight="700">1(P)</text>
+                    <!-- Silenciadores Escape 5 y 3 -->
+                    <polygon points="18,44 12,56 24,56" fill="none" stroke="#38bdf8" stroke-width="1.4"/>
+                    <polygon points="122,44 116,56 128,56" fill="none" stroke="#38bdf8" stroke-width="1.4"/>
+                  </g>
+
+                  <!-- ==================== ELECTROVÁLVULA 5/2 MONOESTABLE 2V1 (2Y1) ==================== -->
+                  <g transform="translate(480, 184)">
+                    <text x="-21" y="2" fill="#cbd5e1" font-size="8.5" font-weight="700" font-family="JetBrains Mono" text-anchor="middle">2V1 (5/2)</text>
+                    <!-- Solenoide 2Y1 (Izquierda) -->
+                    <rect x="-42" y="8" width="42" height="28" rx="3" class="coil-box" id="fsim-sol-2y1"/>
+                    <line x1="-32" y1="8" x2="-10" y2="36" stroke="#94a3b8" stroke-width="1.4"/>
+                    <text x="-21" y="25" fill="#ffffff" font-size="9.5" font-family="JetBrains Mono" font-weight="700" text-anchor="middle">2Y1</text>
+
+                    <!-- Cuerpo 2 posiciones -->
+                    <rect x="0" y="0" width="70" height="44" fill="#162231" stroke="#94a3b8" stroke-width="1.8" id="fsim-2v1-boxL"/>
+                    <rect x="70" y="0" width="70" height="44" fill="#1e3a5f" stroke="#38bdf8" stroke-width="2" id="fsim-2v1-boxR"/>
+                    <line x1="35" y1="44" x2="22" y2="4" stroke="#cbd5e1" stroke-width="1.6"/>
+                    <line x1="52" y1="0" x2="52" y2="40" stroke="#94a3b8" stroke-width="1.6"/>
+                    <line x1="105" y1="44" x2="122" y2="4" stroke="#38bdf8" stroke-width="1.8"/>
+                    <line x1="88" y1="0" x2="88" y2="40" stroke="#94a3b8" stroke-width="1.6"/>
+                    <!-- Resorte de retorno -->
+                    <polyline points="140,14 147,8 154,28 161,8 168,28 174,18" fill="none" stroke="#cbd5e1" stroke-width="1.6"/>
+                    <text x="14" y="-4" fill="#94a3b8" font-size="8" font-family="JetBrains Mono">4</text>
+                    <text x="130" y="-4" fill="#94a3b8" font-size="8" font-family="JetBrains Mono">2</text>
+                    <text x="80" y="56" fill="#38bdf8" font-size="8" font-family="JetBrains Mono" font-weight="700">1(P)</text>
+                    <polygon points="18,44 12,56 24,56" fill="none" stroke="#38bdf8" stroke-width="1.4"/>
+                    <polygon points="122,44 116,56 128,56" fill="none" stroke="#38bdf8" stroke-width="1.4"/>
+                  </g>
+
+                  <!-- Colector Principal de Aire Comprimido 6 bar + Unidad FRL (0Z1) + Presostato P1 -->
+                  <path d="M195,224 L195,268 L550,268 L550,224" class="pneu-line pressurized" id="pipe-main-manifold"/>
+                  <path d="M372,268 L372,290" class="pneu-line pressurized" id="pipe-frl-feed"/>
+                  <g transform="translate(312, 248)">
+                    <rect x="0" y="0" width="120" height="36" rx="4" fill="#132235" stroke="#00a6ff" stroke-width="1.8"/>
+                    <polygon points="-14,18 -2,11 -2,25" fill="#00a6ff"/>
+                    <text x="60" y="15" fill="#e2e8f0" font-size="9" font-weight="700" font-family="JetBrains Mono" text-anchor="middle">UNIDAD FRL (0Z1)</text>
+                    <text x="60" y="29" fill="#00e599" font-size="9.5" font-weight="800" font-family="JetBrains Mono" text-anchor="middle" id="fsim-txt-bar">P1 = 6.0 bar (OK)</text>
+                  </g>
+
+                  <!-- ==================== SECCIÓN 2: CIRCUITO ELÉCTRICO DE MANDO (IEC 60617 — 24V DC) ==================== -->
+                  <rect x="10" y="308" width="760" height="294" rx="6" fill="rgba(15, 23, 42, 0.55)" stroke="#243548" stroke-width="1.2"/>
+                  <text x="22" y="326" fill="#ffb703" font-size="10.5" font-weight="800" font-family="JetBrains Mono">2. CIRCUITO ELÉCTRICO DE CONTROL Y LÓGICA SECUENCIAL (24V DC — IEC 60617)</text>
+
+                  <!-- Riel +24V DC (Arriba) y Riel 0V (Abajo) -->
+                  <line x1="35" y1="344" x2="745" y2="344" stroke="#ef4444" stroke-width="3"/>
+                  <text x="20" y="341" fill="#ef4444" font-size="9.5" font-family="JetBrains Mono" font-weight="800">+24V</text>
+
+                  <line x1="35" y1="578" x2="745" y2="578" stroke="#3b82f6" stroke-width="3"/>
+                  <text x="20" y="582" fill="#3b82f6" font-size="9.5" font-family="JetBrains Mono" font-weight="800">0V</text>
+
+                  <!-- LÍNEA 1 (x=80): Enclavamiento de Marcha General (S0, S2, S1 + K1, P1, /KF(S3) -> K1) -->
+                  <g transform="translate(80, 344)">
+                    <line x1="0" y1="0" x2="0" y2="234" class="elec-wire" id="wire-r1"/>
+                    <!-- S0 Emergencia NC (Clickeable) -->
+                    <rect x="-24" y="12" width="48" height="20" rx="3" class="sensor-pill active" id="fsim-sw-s0" style="cursor:pointer;"/>
+                    <text x="0" y="25" fill="#fff" font-size="8.2" font-family="JetBrains Mono" font-weight="700" text-anchor="middle">S0 (NC)</text>
+                    <!-- S2 Parada NC (Clickeable) -->
+                    <rect x="-24" y="42" width="48" height="20" rx="3" class="sensor-pill active" id="fsim-sw-s2" style="cursor:pointer;"/>
+                    <text x="0" y="55" fill="#fff" font-size="8.2" font-family="JetBrains Mono" font-weight="700" text-anchor="middle">S2 (NC)</text>
+                    <!-- S1 Marcha NA / Retención K1 (Clickeable) -->
+                    <rect x="-28" y="72" width="56" height="22" rx="3" class="sensor-pill" id="fsim-sw-s1" style="cursor:pointer;"/>
+                    <text x="0" y="86" fill="#fff" font-size="8.2" font-family="JetBrains Mono" font-weight="700" text-anchor="middle">S1 + K1</text>
+                    <!-- Presostato P1 -->
+                    <rect x="-24" y="104" width="48" height="20" rx="3" class="sensor-pill active" id="fsim-sw-p1"/>
+                    <text x="0" y="117" fill="#fff" font-size="8.2" font-family="JetBrains Mono" font-weight="700" text-anchor="middle">P1≥5b</text>
+                    <!-- Permiso Rearme /KF (S3) -->
+                    <rect x="-26" y="134" width="52" height="20" rx="3" class="sensor-pill active" id="fsim-ct-kf-nc" style="cursor:pointer;"/>
+                    <text x="0" y="147" fill="#fff" font-size="8" font-family="JetBrains Mono" font-weight="700" text-anchor="middle">/KF(S3)</text>
+                    <!-- Bobina Relé K1 (Sistema Activo) -->
+                    <rect x="-22" y="185" width="44" height="30" rx="3" class="coil-box" id="fsim-coil-k1"/>
+                    <text x="0" y="204" fill="#fff" font-size="9.5" font-family="JetBrains Mono" font-weight="700" text-anchor="middle">K1</text>
+                  </g>
+
+                  <!-- LÍNEA 2 (x=190): Motor Cinta KM1 y Validación B1 (K1 · 1B1 · 2B1 · /K2 · /K3 -> KM1 / KB1) -->
+                  <g transform="translate(190, 344)">
+                    <line x1="0" y1="0" x2="0" y2="234" class="elec-wire" id="wire-r2"/>
+                    <rect x="-24" y="18" width="48" height="20" rx="3" class="sensor-pill" id="fsim-ct-k1-2"/>
+                    <text x="0" y="31" fill="#fff" font-size="8.2" font-family="JetBrains Mono" font-weight="700" text-anchor="middle">K1 (NA)</text>
+
+                    <rect x="-28" y="52" width="56" height="20" rx="3" class="sensor-pill" id="fsim-ct-b1-2"/>
+                    <text x="0" y="65" fill="#fff" font-size="8" font-family="JetBrains Mono" font-weight="700" text-anchor="middle">B1 / KB1</text>
+
+                    <rect x="-28" y="86" width="56" height="20" rx="3" class="sensor-pill active" id="fsim-ct-1b1-2"/>
+                    <text x="0" y="99" fill="#fff" font-size="8.2" font-family="JetBrains Mono" font-weight="700" text-anchor="middle">1B1·2B1</text>
+
+                    <rect x="-28" y="120" width="56" height="20" rx="3" class="sensor-pill active" id="fsim-ct-k2k3-nc"/>
+                    <text x="0" y="133" fill="#fff" font-size="8.2" font-family="JetBrains Mono" font-weight="700" text-anchor="middle">/K2·/K3</text>
+
+                    <rect x="-22" y="185" width="44" height="30" rx="3" class="coil-box" id="fsim-coil-km1"/>
+                    <text x="0" y="204" fill="#fff" font-size="9.5" font-family="JetBrains Mono" font-weight="700" text-anchor="middle">KM1</text>
+                  </g>
+
+                  <!-- LÍNEA 3 (x=310): Detección Metal y Disparo 1A1+ (K1 · KB1(B1) · B2 · 1B1 + K2 · /1B2 -> K2 / 1Y1) -->
+                  <g transform="translate(310, 344)">
+                    <line x1="0" y1="0" x2="0" y2="234" class="elec-wire" id="wire-r3"/>
+                    <rect x="-28" y="18" width="56" height="20" rx="3" class="sensor-pill" id="fsim-ct-kb1-a"/>
+                    <text x="0" y="31" fill="#fff" font-size="8" font-family="JetBrains Mono" font-weight="700" text-anchor="middle">KB1 (B1)</text>
+
+                    <rect x="-26" y="52" width="52" height="20" rx="3" class="sensor-pill" id="fsim-ct-b2"/>
+                    <text x="0" y="65" fill="#fff" font-size="8.2" font-family="JetBrains Mono" font-weight="700" text-anchor="middle">B2 (IND)</text>
+
+                    <rect x="-26" y="86" width="52" height="20" rx="3" class="sensor-pill active" id="fsim-ct-1b1"/>
+                    <text x="0" y="99" fill="#fff" font-size="8.2" font-family="JetBrains Mono" font-weight="700" text-anchor="middle">1B1 (a0)</text>
+
+                    <rect x="-26" y="120" width="52" height="20" rx="3" class="sensor-pill active" id="fsim-ct-1b2-nc"/>
+                    <text x="0" y="133" fill="#fff" font-size="8.2" font-family="JetBrains Mono" font-weight="700" text-anchor="middle">/1B2(a1)</text>
+
+                    <rect x="-26" y="185" width="52" height="30" rx="3" class="coil-box" id="fsim-coil-1y1"/>
+                    <text x="0" y="204" fill="#fff" font-size="9.5" font-family="JetBrains Mono" font-weight="700" text-anchor="middle">1Y1/K2</text>
+                  </g>
+
+                  <!-- LÍNEA 4 (x=435): Detección Plástico y Disparo 2A1+ (K1 · KB1(B1) · B3 · 2B1 + K3 · /2B2 -> K3 / 2Y1) -->
+                  <g transform="translate(435, 344)">
+                    <line x1="0" y1="0" x2="0" y2="234" class="elec-wire" id="wire-r4"/>
+                    <rect x="-28" y="18" width="56" height="20" rx="3" class="sensor-pill" id="fsim-ct-kb1-b"/>
+                    <text x="0" y="31" fill="#fff" font-size="8" font-family="JetBrains Mono" font-weight="700" text-anchor="middle">KB1 (B1)</text>
+
+                    <rect x="-26" y="52" width="52" height="20" rx="3" class="sensor-pill" id="fsim-ct-b3"/>
+                    <text x="0" y="65" fill="#fff" font-size="8.2" font-family="JetBrains Mono" font-weight="700" text-anchor="middle">B3 (CAP)</text>
+
+                    <rect x="-26" y="86" width="52" height="20" rx="3" class="sensor-pill active" id="fsim-ct-2b1"/>
+                    <text x="0" y="99" fill="#fff" font-size="8.2" font-family="JetBrains Mono" font-weight="700" text-anchor="middle">2B1 (b0)</text>
+
+                    <rect x="-26" y="120" width="52" height="20" rx="3" class="sensor-pill active" id="fsim-ct-2b2-nc"/>
+                    <text x="0" y="133" fill="#fff" font-size="8.2" font-family="JetBrains Mono" font-weight="700" text-anchor="middle">/2B2(b1)</text>
+
+                    <rect x="-26" y="185" width="52" height="30" rx="3" class="coil-box" id="fsim-coil-2y1"/>
+                    <text x="0" y="204" fill="#fff" font-size="9.5" font-family="JetBrains Mono" font-weight="700" text-anchor="middle">2Y1/K3</text>
+                  </g>
+
+                  <!-- LÍNEA 5 (x=555): Indicador Luminoso Verde H1 (Marcha) -->
+                  <g transform="translate(555, 344)">
+                    <line x1="0" y1="0" x2="0" y2="234" class="elec-wire" id="wire-r5"/>
+                    <rect x="-24" y="45" width="48" height="22" rx="3" class="sensor-pill" id="fsim-ct-h1"/>
+                    <text x="0" y="59" fill="#fff" font-size="8.5" font-family="JetBrains Mono" font-weight="700" text-anchor="middle">K1 (NA)</text>
+
+                    <circle cx="0" cy="200" r="15" class="coil-box" id="fsim-coil-h1"/>
+                    <text x="0" y="204" fill="#fff" font-size="9.5" font-family="JetBrains Mono" font-weight="700" text-anchor="middle">H1</text>
+                  </g>
+
+                  <!-- LÍNEA 6 (x=640): Indicador Amarillo H2 (Clasificando) -->
+                  <g transform="translate(640, 344)">
+                    <line x1="0" y1="0" x2="0" y2="234" class="elec-wire" id="wire-r6"/>
+                    <rect x="-26" y="45" width="52" height="22" rx="3" class="sensor-pill" id="fsim-ct-h2"/>
+                    <text x="0" y="59" fill="#fff" font-size="8.5" font-family="JetBrains Mono" font-weight="700" text-anchor="middle">K2+K3</text>
+
+                    <circle cx="0" cy="200" r="15" class="coil-box" id="fsim-coil-h2"/>
+                    <text x="0" y="204" fill="#fff" font-size="9.5" font-family="JetBrains Mono" font-weight="700" text-anchor="middle">H2</text>
+                  </g>
+
+                  <!-- LÍNEA 7 (x=720): Relé de Falla KF y Baliza Roja H3 (/S0 + /P1 + KF) · /S3 -->
+                  <g transform="translate(720, 344)">
+                    <line x1="0" y1="0" x2="0" y2="234" class="elec-wire" id="wire-r7"/>
+                    <rect x="-26" y="34" width="52" height="20" rx="3" class="sensor-pill" id="fsim-ct-h3"/>
+                    <text x="0" y="47" fill="#fff" font-size="8" font-family="JetBrains Mono" font-weight="700" text-anchor="middle">/S0+/P1</text>
+
+                    <rect x="-26" y="72" width="52" height="20" rx="3" class="sensor-pill active" id="fsim-sw-s3" style="cursor:pointer;"/>
+                    <text x="0" y="85" fill="#fff" font-size="8" font-family="JetBrains Mono" font-weight="700" text-anchor="middle">/S3(RST)</text>
+
+                    <circle cx="0" cy="200" r="15" class="coil-box" id="fsim-coil-h3"/>
+                    <text x="0" y="204" fill="#fff" font-size="8.5" font-family="JetBrains Mono" font-weight="700" text-anchor="middle">KF/H3</text>
+                  </g>
+
+                  <!-- Etiquetas inferiores de ramas eléctricas -->
+                  <text x="80" y="595" fill="#94a3b8" font-size="8" font-family="JetBrains Mono" font-weight="700" text-anchor="middle">1: Marcha K1</text>
+                  <text x="190" y="595" fill="#94a3b8" font-size="8" font-family="JetBrains Mono" font-weight="700" text-anchor="middle">2: Cinta KM1</text>
+                  <text x="310" y="595" fill="#38bdf8" font-size="8" font-family="JetBrains Mono" font-weight="700" text-anchor="middle">3: Metal 1Y1</text>
+                  <text x="435" y="595" fill="#fbbf24" font-size="8" font-family="JetBrains Mono" font-weight="700" text-anchor="middle">4: Plást. 2Y1</text>
+                  <text x="555" y="595" fill="#00e599" font-size="8" font-family="JetBrains Mono" font-weight="700" text-anchor="middle">5: Verde H1</text>
+                  <text x="640" y="595" fill="#ffb703" font-size="8" font-family="JetBrains Mono" font-weight="700" text-anchor="middle">6: Ciclo H2</text>
+                  <text x="720" y="595" fill="#ff385c" font-size="8" font-family="JetBrains Mono" font-weight="700" text-anchor="middle">7: Falla H3</text>
+                </svg>
+              </div>
+
+              <!-- PANEL INFERIOR DE ESTADO DE ENTRADAS Y SALIDAS FÍSICAS -->
+              <div class="io-grid">
+                <div class="io-panel">
+                  <h4><span>Entradas Digitales y Sensores (%I)</span> <span class="mono">24V DC</span></h4>
+                  <div class="io-list">
+                    <div class="io-item"><span><b class="io-tag">S0</b> Emergencia (NC)</span><span class="io-led on" id="led-s0"></span></div>
+                    <div class="io-item"><span><b class="io-tag">S1</b> Puls. Marcha</span><span class="io-led" id="led-s1"></span></div>
+                    <div class="io-item"><span><b class="io-tag">B1</b> Óptico Inicio</span><span class="io-led" id="led-b1"></span></div>
+                    <div class="io-item"><span><b class="io-tag">B2</b> Inductivo Metal</span><span class="io-led" id="led-b2"></span></div>
+                    <div class="io-item"><span><b class="io-tag">B3</b> Capacit. Plást.</span><span class="io-led" id="led-b3"></span></div>
+                    <div class="io-item"><span><b class="io-tag">P1</b> Presostato ≥5b</span><span class="io-led on" id="led-p1"></span></div>
+                    <div class="io-item"><span><b class="io-tag">1B1 / 1B2</b> Cil. A</span><span class="mono" id="txt-io-1b">a0=1 a1=0</span></div>
+                    <div class="io-item"><span><b class="io-tag">2B1 / 2B2</b> Cil. B</span><span class="mono" id="txt-io-2b">b0=1 b1=0</span></div>
+                  </div>
+                </div>
+                <div class="io-panel">
+                  <h4><span>Salidas a Actuadores y Electroválvulas (%Q)</span> <span class="mono">Relé / Sol.</span></h4>
+                  <div class="io-list">
+                    <div class="io-item"><span><b class="io-tag">KM1</b> Motor Cinta M1</span><span class="io-led" id="led-km1"></span></div>
+                    <div class="io-item"><span><b class="io-tag">1Y1</b> EV 5/2 Cil. 1A1</span><span class="io-led" id="led-1y1"></span></div>
+                    <div class="io-item"><span><b class="io-tag">2Y1</b> EV 5/2 Cil. 2A1</span><span class="io-led" id="led-2y1"></span></div>
+                    <div class="io-item"><span><b class="io-tag">K1</b> Memoria Marcha</span><span class="io-led" id="led-k1"></span></div>
+                    <div class="io-item"><span><b class="io-tag">H1</b> Piloto Verde</span><span class="io-led" id="led-h1"></span></div>
+                    <div class="io-item"><span><b class="io-tag">H2</b> Piloto Proceso</span><span class="io-led" id="led-h2"></span></div>
+                    <div class="io-item"><span><b class="io-tag">H3</b> Baliza Alarma</span><span class="io-led" id="led-h3"></span></div>
+                    <div class="io-item"><span><b class="io-tag">CICLO</b> Tiempo Expuls.</span><span class="mono" id="txt-cycle-ms">0.85 s</span></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </main>
+
+    <!-- ======================================================================= -->
+    <!-- VISTA 2: DIAGRAMA EN BLOQUES, GRAFCET Y TABLA MAESTRA DE E/S            -->
+    <!-- ======================================================================= -->
+    <section class="view" id="view-bloques">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Diagrama en Bloques Funcional del Sistema Mecatrónico (Interactivo en Tiempo Real)</div>
+          <div class="card-subtitle">Cumplimiento Consigna Puntos 2, 3 y 4 — Flujo de Señal, Energía Neumática/Eléctrica y Realimentación</div>
+        </div>
+        <div class="card-body">
+          <div class="svg-canvas-wrap" style="padding: 10px;">
+            <svg viewBox="0 0 980 265" preserveAspectRatio="xMidYMid meet">
+              <!-- Fuente de Energía Eléctrica y Neumática -->
+              <rect x="310" y="10" width="360" height="44" rx="6" fill="#132235" stroke="#00b4d8" stroke-width="1.8"/>
+              <text x="490" y="28" fill="#38bdf8" font-size="10.5" font-weight="800" font-family="JetBrains Mono" text-anchor="middle">FUENTES DE ENERGÍA DEL SISTEMA MECATRÓNICO</text>
+              <text x="490" y="44" fill="#cbd5e1" font-size="9.5" font-family="Inter" text-anchor="middle">Fuente DC 24V (Mando) · Red Trifásica/DC (Motor M1) · Compresor + FRL 6.0 bar (Neumática)</text>
+              <line x1="400" y1="54" x2="400" y2="85" stroke="#00b4d8" stroke-width="2" stroke-dasharray="4 3"/>
+              <line x1="590" y1="54" x2="590" y2="85" stroke="#00b4d8" stroke-width="2" stroke-dasharray="4 3"/>
+
+              <!-- Bloque 1: ENTRADAS -->
+              <rect x="20" y="85" width="205" height="105" rx="8" fill="#142030" stroke="#00e599" stroke-width="2" id="blk-inputs"/>
+              <text x="122" y="106" fill="#00e599" font-size="11" font-weight="800" font-family="JetBrains Mono" text-anchor="middle">1. ENTRADAS (SENSORES)</text>
+              <text x="32" y="126" fill="#e2e8f0" font-size="9.5">• Mandos: S1, S2, S3 (Reset), S0</text>
+              <text x="32" y="142" fill="#e2e8f0" font-size="9.5">• Validación y Conteo: B1 (Óptico)</text>
+              <text x="32" y="158" fill="#e2e8f0" font-size="9.5">• Material: B2 (Inductivo), B3 (Capacit.)</text>
+              <text x="32" y="174" fill="#e2e8f0" font-size="9.5">• Fines Carrera: 1B1/1B2, 2B1/2B2, P1</text>
+
+              <line x1="225" y1="137" x2="275" y2="137" stroke="#00e599" stroke-width="2.5"/>
+              <polygon points="275,137 265,132 265,142" fill="#00e599"/>
+
+              <!-- Bloque 2: UNIDAD DE CONTROL / PROCESO -->
+              <rect x="275" y="85" width="215" height="105" rx="8" fill="#142030" stroke="#38bdf8" stroke-width="2" id="blk-control"/>
+              <text x="382" y="106" fill="#38bdf8" font-size="11" font-weight="800" font-family="JetBrains Mono" text-anchor="middle">2. PROCESO / CONTROL</text>
+              <text x="287" y="126" fill="#e2e8f0" font-size="9.5">• Enclavamiento K1 y Falla KF (S3)</text>
+              <text x="287" y="142" fill="#e2e8f0" font-size="9.5">• Permiso de Tránsito KB1 (Sensor B1)</text>
+              <text x="287" y="158" fill="#e2e8f0" font-size="9.5">• Discriminación Metal (K2) / Plást. (K3)</text>
+              <text x="287" y="174" fill="#e2e8f0" font-size="9.5">• Secuencia A+ A- y B+ B-</text>
+
+              <line x1="490" y1="137" x2="540" y2="137" stroke="#38bdf8" stroke-width="2.5"/>
+              <polygon points="540,137 530,132 530,142" fill="#38bdf8"/>
+
+              <!-- Bloque 3: PREACTUADORES -->
+              <rect x="540" y="85" width="195" height="105" rx="8" fill="#142030" stroke="#ffb703" stroke-width="2" id="blk-valves"/>
+              <text x="637" y="106" fill="#ffb703" font-size="11" font-weight="800" font-family="JetBrains Mono" text-anchor="middle">3. PRE-ACTUADORES</text>
+              <text x="552" y="126" fill="#e2e8f0" font-size="9.5">• Contactor KM1 (Motor Cinta)</text>
+              <text x="552" y="142" fill="#e2e8f0" font-size="9.5">• Electroválvula 5/2 1V1 (Sol. 1Y1)</text>
+              <text x="552" y="158" fill="#e2e8f0" font-size="9.5">• Electroválvula 5/2 2V1 (Sol. 2Y1)</text>
+              <text x="552" y="174" fill="#e2e8f0" font-size="9.5">• Reguladores caudal 1V2, 2V2</text>
+
+              <line x1="735" y1="137" x2="780" y2="137" stroke="#ffb703" stroke-width="2.5"/>
+              <polygon points="780,137 770,132 770,142" fill="#ffb703"/>
+
+              <!-- Bloque 4: SALIDAS / ACTUADORES -->
+              <rect x="780" y="85" width="180" height="105" rx="8" fill="#142030" stroke="#f43f5e" stroke-width="2" id="blk-outputs"/>
+              <text x="870" y="106" fill="#fb7185" font-size="11" font-weight="800" font-family="JetBrains Mono" text-anchor="middle">4. SALIDAS (PLANTA)</text>
+              <text x="792" y="126" fill="#e2e8f0" font-size="9.5">• Motor M1 (Avance de Cinta)</text>
+              <text x="792" y="142" fill="#e2e8f0" font-size="9.5">• Cilindro 1A1 (Expulsa Metal)</text>
+              <text x="792" y="158" fill="#e2e8f0" font-size="9.5">• Cilindro 2A1 (Expulsa Plástico)</text>
+              <text x="792" y="174" fill="#e2e8f0" font-size="9.5">• Señalización H1, H2, H3</text>
+
+              <!-- Lazo de Realimentación (Feedback de Fines de Carrera Magnéticos y Sensores) -->
+              <path d="M870,190 L870,238 L122,238 L122,190" fill="none" stroke="#a855f7" stroke-width="2.2" stroke-dasharray="6 4"/>
+              <polygon points="122,190 117,200 127,200" fill="#a855f7"/>
+              <rect x="260" y="222" width="470" height="26" rx="5" fill="#1e1b2e" stroke="#a855f7" stroke-width="1.5"/>
+              <text x="495" y="239" fill="#e9d5ff" font-size="9.5" font-weight="700" font-family="JetBrains Mono" text-anchor="middle">LAZO DE REALIMENTACIÓN: Posición Vástagos (1B1/1B2, 2B1/2B2) y Presencia</text>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- TABLA COMPLETA DE IDENTIFICACIÓN DE ENTRADAS, PROCESO Y SALIDAS -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Identificación Detallada de Entradas, Proceso y Salidas del Sistema</div>
+          <div class="card-subtitle">Nomenclatura normalizada según ISO 1219-2 / IEC 61131-3</div>
+        </div>
+        <div class="card-body">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Categoría</th>
+                <th>Símbolo ISO / PLC</th>
+                <th>Componente Físico</th>
+                <th>Tipo de Señal</th>
+                <th>Función en el Sistema Mecatrónico</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><span class="state-pill" style="background:rgba(0,229,153,0.15);color:#00e599;">ENTRADA (Mando)</span></td>
+                <td class="mono"><b>S1</b> (%I0.1)</td>
+                <td>Pulsador luminoso verde NA</td>
+                <td>Digital 24V DC (NA)</td>
+                <td>Inicia el ciclo automático de transporte y clasificación al enclavar K1.</td>
+              </tr>
+              <tr>
+                <td><span class="state-pill" style="background:rgba(0,229,153,0.15);color:#00e599;">ENTRADA (Mando)</span></td>
+                <td class="mono"><b>S2</b> (%I0.2)</td>
+                <td>Pulsador rojo NC de parada</td>
+                <td>Digital 24V DC (NC)</td>
+                <td>Detiene el ciclo normal desenclavando la memoria de marcha K1.</td>
+              </tr>
+              <tr>
+                <td><span class="state-pill" style="background:rgba(255,56,92,0.18);color:#ff385c;">ENTRADA (Seguridad)</span></td>
+                <td class="mono"><b>S0</b> (%I0.0)</td>
+                <td>Seta Parada de Emergencia NC</td>
+                <td>Digital Fail-Safe (NC)</td>
+                <td>Corta inmediatamente el suministro de mando ante riesgo, retrayendo cilindros por muelle y enclavando el relé de bloqueo por falla <b>KF</b>.</td>
+              </tr>
+              <tr>
+                <td><span class="state-pill" style="background:rgba(0,229,153,0.15);color:#00e599;">ENTRADA (Mando)</span></td>
+                <td class="mono"><b>S3</b> (%I0.7)</td>
+                <td>Pulsador azul NA de Rearme / Reset</td>
+                <td>Digital 24V DC (NA)</td>
+                <td>Desenclava la memoria de falla <b>KF</b> (<span class="mono">KF = (/S0 + /P1 + KF) · /S3</span>) tras normalizar una emergencia o baja presión, restituyendo el permiso de arranque en <b>K1</b>.</td>
+              </tr>
+              <tr>
+                <td><span class="state-pill" style="background:rgba(0,180,216,0.15);color:#38bdf8;">ENTRADA (Sensor)</span></td>
+                <td class="mono"><b>B1</b> (%I0.3)</td>
+                <td>Sensor Fotoeléctrico de Barrera</td>
+                <td>Digital PNP 24V DC</td>
+                <td><b>Validación de Pieza en Tránsito y Conteo:</b> Al detectar ingreso en cabecera, enclava el relé auxiliar <b>KB1</b> (que habilita los expulsores <b>K2/K3</b> evitando disparos falsos en B2/B3) e incrementa el contador de lote entrante.</td>
+              </tr>
+              <tr>
+                <td><span class="state-pill" style="background:rgba(0,180,216,0.15);color:#38bdf8;">ENTRADA (Sensor)</span></td>
+                <td class="mono"><b>B2</b> (%I0.4)</td>
+                <td>Sensor de Proximidad Inductivo</td>
+                <td>Digital PNP 24V DC</td>
+                <td>Detecta exclusivamente piezas <b>Metálicas</b> frente a la Estación Expulsora 1 (Cilindro 1A1).</td>
+              </tr>
+              <tr>
+                <td><span class="state-pill" style="background:rgba(0,180,216,0.15);color:#38bdf8;">ENTRADA (Sensor)</span></td>
+                <td class="mono"><b>B3</b> (%I0.5)</td>
+                <td>Sensor Capacitivo / Óptico Difuso</td>
+                <td>Digital PNP 24V DC</td>
+                <td>Detecta piezas <b>Plásticas (Polímero)</b> que llegan a la Estación Expulsora 2 (Cilindro 2A1).</td>
+              </tr>
+              <tr>
+                <td><span class="state-pill" style="background:rgba(168,85,247,0.18);color:#d8b4fe;">ENTRADA (Fin Carrera)</span></td>
+                <td class="mono"><b>1B1 (a0) / 1B2 (a1)</b></td>
+                <td>Detectores Magnéticos Reed en 1A1</td>
+                <td>Digital 24V DC</td>
+                <td>Confirman cilindro 1A1 retraído (0 mm) para habilitar cinta, y extendido (100 mm) para ordenar retorno A-.</td>
+              </tr>
+              <tr>
+                <td><span class="state-pill" style="background:rgba(168,85,247,0.18);color:#d8b4fe;">ENTRADA (Fin Carrera)</span></td>
+                <td class="mono"><b>2B1 (b0) / 2B2 (b1)</b></td>
+                <td>Detectores Magnéticos Reed en 2A1</td>
+                <td>Digital 24V DC</td>
+                <td>Confirman cilindro 2A1 retraído (0 mm) para habilitar cinta, y extendido (100 mm) para ordenar retorno B-.</td>
+              </tr>
+              <tr>
+                <td><span class="state-pill" style="background:rgba(255,183,3,0.16);color:#ffb703;">SALIDA (Actuador)</span></td>
+                <td class="mono"><b>KM1 ➔ Motor M1</b> (%Q0.0)</td>
+                <td>Contactor y Motorreductor Cinta</td>
+                <td>Potencia Eléctrica</td>
+                <td>Tracciona la banda transportadora trasladando las piezas por el túnel de sensores.</td>
+              </tr>
+              <tr>
+                <td><span class="state-pill" style="background:rgba(255,183,3,0.16);color:#ffb703;">SALIDA (Neumática)</span></td>
+                <td class="mono"><b>1Y1 ➔ EV 1V1 ➔ Cil. 1A1</b></td>
+                <td>Electroválvula 5/2 + Cilindro Doble Efecto</td>
+                <td>24V DC ➔ Aire 6 bar</td>
+                <td>Conmuta la válvula 5/2 para extender el vástago 1A1 (A+) y desviar piezas metálicas a Tolva 1.</td>
+              </tr>
+              <tr>
+                <td><span class="state-pill" style="background:rgba(255,183,3,0.16);color:#ffb703;">SALIDA (Neumática)</span></td>
+                <td class="mono"><b>2Y1 ➔ EV 2V1 ➔ Cil. 2A1</b></td>
+                <td>Electroválvula 5/2 + Cilindro Doble Efecto</td>
+                <td>24V DC ➔ Aire 6 bar</td>
+                <td>Conmuta la válvula 5/2 para extender el vástago 2A1 (B+) y desviar piezas plásticas a Tolva 2.</td>
+              </tr>
+              <tr>
+                <td><span class="state-pill" style="background:rgba(255,183,3,0.16);color:#ffb703;">SALIDA (Óptica)</span></td>
+                <td class="mono"><b>H1 / H2 / H3</b> (%Q0.3..5)</td>
+                <td>Baliza Industrial Andon 3 Colores</td>
+                <td>24V DC LED</td>
+                <td>H1 (Verde): Marcha activa · H2 (Amarillo): Expulsión en curso · H3 (Rojo): Falla / Parada Emergencia.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- TABLA DE POLARIDADES Y MATRIZ DE TRAZABILIDAD V&V -->
+      <div class="main-workspace" style="grid-template-columns: 1fr 1.25fr;">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Tabla de Polaridades y Convención Lógica (IEC 61131-3)</div>
+            <div class="card-subtitle">Estado físico de contactos vs. interpretación booleana</div>
+          </div>
+          <div class="card-body">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Señal</th>
+                  <th>Contacto Físico</th>
+                  <th>Estado en Reposo</th>
+                  <th>Interpretación Lógica</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td class="mono"><b>S0</b></td><td>NC (Fail-Safe)</td><td>Cerrado (24V)</td><td><span class="mono">1</span> = Sin emergencia (<span class="mono">0</span> = Parada S0)</td></tr>
+                <tr><td class="mono"><b>S2</b></td><td>NC (Parada)</td><td>Cerrado (24V)</td><td><span class="mono">1</span> = Sin parada (<span class="mono">0</span> = Orden parada)</td></tr>
+                <tr><td class="mono"><b>S1</b></td><td>NA (Marcha)</td><td>Abierto (0V)</td><td><span class="mono">1</span> = Pulso de arranque ciclo</td></tr>
+                <tr><td class="mono"><b>S3</b></td><td>NA (Rearme)</td><td>Abierto (0V)</td><td><span class="mono">1</span> = Pulso reset de alarma KF</td></tr>
+                <tr><td class="mono"><b>P1</b></td><td>NA (Presostato)</td><td>Cerrado a 6 bar</td><td><span class="mono">1</span> = Presión válida (≥ 5.0 bar)</td></tr>
+                <tr><td class="mono"><b>B1 / B2 / B3</b></td><td>PNP NA</td><td>Abierto (0V)</td><td><span class="mono">1</span> = Pieza detectada (Ingreso/Metal/Plást.)</td></tr>
+                <tr><td class="mono"><b>1B1 / 2B1</b></td><td>Reed NA (0 mm)</td><td>Cerrado (Pisado)</td><td><span class="mono">1</span> = Cilindro retraído en origen</td></tr>
+                <tr><td class="mono"><b>1B2 / 2B2</b></td><td>Reed NA (100mm)</td><td>Abierto (0V)</td><td><span class="mono">1</span> = Cilindro extendido al 100%</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Matriz de Trazabilidad y Verificación Funcional (V&amp;V)</div>
+            <div class="card-subtitle">Cruce entre requisitos de ingeniería, ecuaciones y ensayos</div>
+          </div>
+          <div class="card-body">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Requisito</th>
+                  <th>Elemento</th>
+                  <th>Lógica Asociada</th>
+                  <th>Ensayo</th>
+                  <th>Resultado</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td>Validar ingreso / atasco</td><td class="mono">B1</td><td class="mono">KB1 = K1·(B1+KB1) | T_B1&lt;3s</td><td class="mono">E-01/02</td><td><span class="state-pill" style="background:rgba(0,229,153,0.18);color:#00e599;">PASS</span></td></tr>
+                <tr><td>Detectar y expulsar metal</td><td class="mono">B2 ➔ 1A1</td><td class="mono">K2 = K1·KB1·(B2·1B1+K2)·/1B2</td><td class="mono">E-02</td><td><span class="state-pill" style="background:rgba(0,229,153,0.18);color:#00e599;">PASS</span></td></tr>
+                <tr><td>Detectar y expulsar plást.</td><td class="mono">B3 ➔ 2A1</td><td class="mono">K3 = K1·KB1·(B3·/B2·/K2·2B1+K3)·/2B2</td><td class="mono">E-03</td><td><span class="state-pill" style="background:rgba(0,229,153,0.18);color:#00e599;">PASS</span></td></tr>
+                <tr><td>Pausar cinta en expulsión</td><td class="mono">KM1 (M1)</td><td class="mono">KM1 = K1·1B1·2B1·/K2·/K3</td><td class="mono">E-02/03</td><td><span class="state-pill" style="background:rgba(0,229,153,0.18);color:#00e599;">PASS</span></td></tr>
+                <tr><td>Arbitraje conflicto B2·B3</td><td class="mono">B2, B3</td><td class="mono">Prioridad K2 + Alarma si B2·B3 &gt; 1s</td><td class="mono">E-06</td><td><span class="state-pill" style="background:rgba(0,229,153,0.18);color:#00e599;">PASS</span></td></tr>
+                <tr><td>Watchdog cilindros 1A1/2A1</td><td class="mono">1B1..2B2</td><td class="mono">T_av &gt; 1.5s | T_ret &gt; 2.0s ➔ KF</td><td class="mono">E-06</td><td><span class="state-pill" style="background:rgba(0,229,153,0.18);color:#00e599;">PASS</span></td></tr>
+                <tr><td>Emergencia / Baja Presión / Reset</td><td class="mono">S0, P1, S3</td><td class="mono">KF = (/S0+/P1+ALM+KF)·/S3</td><td class="mono">E-05</td><td><span class="state-pill" style="background:rgba(0,229,153,0.18);color:#00e599;">PASS</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================================= -->
+    <!-- VISTA 3: GESTIÓN DE ALARMAS ISA-18.2 E INYECCIÓN DE FALLAS              -->
+    <!-- ======================================================================= -->
+    <section class="view" id="view-alarmas">
+      <div class="control-bar">
+        <div class="btn-group">
+          <span style="font-size: 11px; color: var(--text-secondary); font-weight: 700;">SIMULAR CONDICIONES DE FALLA (LABORATORIO FMEA):</span>
+          <button class="btn btn-stop" id="btn-fault-pressure">⚠️ Caída Presión FRL (3.2 bar)</button>
+          <button class="btn btn-estop" id="btn-fault-jam">🔧 Timeout Avance 1A1 (&gt; 1.5 s)</button>
+          <button class="btn btn-piece-plastic" id="btn-fault-conflict">⚡ Conflicto Simultáneo B2+B3 (&gt; 1.0 s)</button>
+          <button class="btn btn-reset" id="btn-fault-clear">✔️ Rearme Manual S3 (6.0 bar)</button>
+        </div>
+        <div class="btn-group">
+          <button class="btn" id="btn-ack-all">☑️ Reconocer Alarmas (ACK)</button>
+          <button class="btn" id="btn-export-csv">📥 Exportar Historial CSV</button>
+        </div>
+      </div>
+
+      <div class="card" style="flex: 1;">
+        <div class="card-header">
+          <div class="card-title">Registro de Eventos Operativos y Alarmas Industriales (Norma ISA-18.2)</div>
+          <div class="card-subtitle">Auditoría con estampa de tiempo al milisegundo</div>
+        </div>
+        <div class="card-body">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Timestamp</th>
+                <th>Prioridad</th>
+                <th>Código / Tag</th>
+                <th>Descripción del Evento o Alarma</th>
+                <th>Estado</th>
+              </tr>
+            </thead>
+            <tbody id="alarms-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <script src="js/simulator.js"></script>
+</body>
+</html>
+

@@ -1,0 +1,18 @@
+{
+  "version": 2,
+  "cleanUrls": true,
+  "rewrites": [
+    {
+      "source": "/",
+      "destination": "/Simulador_SCADA/index.html"
+    },
+    {
+      "source": "/css/:path*",
+      "destination": "/Simulador_SCADA/css/:path*"
+    },
+    {
+      "source": "/js/:path*",
+      "destination": "/Simulador_SCADA/js/:path*"
+    }
+  ]
+}

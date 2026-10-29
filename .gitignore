@@ -1,0 +1,8 @@
+# Excluir archivo PDF original de consigna y temporales
+*FluidSIM*.pdf
+Guía*.pdf
+__pycache__/
+*.pyc
+.vercel/
+.DS_Store
+Thumbs.db

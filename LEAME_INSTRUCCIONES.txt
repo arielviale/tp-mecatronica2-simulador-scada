@@ -1,0 +1,42 @@
+===============================================================================
+UTN FACULTAD REGIONAL PARANÁ — TECNICATURA SUPERIOR EN MECATRÓNICA
+Cátedra: Mecatrónica II
+Trabajo Práctico: Modelado y Simulación de un Sistema Mecatrónico
+Sistema: Estación de Clasificación Electroneumática de Piezas en Cinta
+Alumno: Hugo Ariel Martinez
+===============================================================================
+
+GUÍA RÁPIDA DE EJECUCIÓN Y DEMOSTRACIÓN EN CLASE
+
+1. INICIAR EL SIMULADOR PROPIO (SIMULADOR ELECTRONEUMÁTICO + SCADA ISA-101):
+   - Haga doble clic sobre el archivo "INICIAR_SIMULADOR.bat" (o abra directamente
+     el archivo "Simulador_SCADA/index.html" en su navegador web).
+   - No requiere instalar licencias adicionales y funciona 100% offline.
+
+2. SECUENCIA DE DEMOSTRACIÓN RECOMENDADA (CONSIGNA PUNTO 6):
+   a) Presione el botón verde "▶ MARCHA (S1)" (o haga clic sobre el contacto S1
+      directamente en el plano eléctrico de mando IEC 60617 a la derecha).
+      -> Se enclava el relé K1, se ilumina el piloto verde H1 y arranca el motor
+         de la cinta transportadora M1 (contactor KM1).
+   b) Presione "⚙️ + Pieza Metálica (Acero)":
+      -> La pieza pasa por el sensor óptico B1 y al llegar al sensor inductivo B2
+         (Estación 1), la cinta se pausa, se energiza el solenoide 1Y1 de la
+         válvula 5/2 (1V1) y el cilindro 1A1 avanza (A+) hasta el fin de carrera
+         magnético 1B2 (a1 = 100 mm), desviando la pieza hacia la Tolva 1.
+      -> Al tocar 1B2, cae 1Y1 y el cilindro retrocede (A-) por muelle hasta 1B1 (a0),
+         reanudando automáticamente el giro de la cinta M1.
+   c) Presione "🟧 + Pieza Plástica (Polímero)":
+      -> La pieza no activa al sensor inductivo B2 y continúa hasta la Estación 2,
+         donde el sensor capacitivo B3 dispara la electroválvula 2Y1 y el cilindro
+         2A1 ejecuta la secuencia B+ / B- hacia la Tolva 2.
+   d) Active "🔄 Alimentación Auto: ON" para observar el ciclo continuo y las
+      curvas en vivo del Diagrama Espacio-Fase.
+   e) En la Pestaña 2 puede mostrar el Diagrama en Bloques Completo y la Tabla
+      Maestra de Entradas, Proceso y Salidas.
+   f) En la Pestaña 3 puede inyectar fallas (caída de presión FRL < 5 bar o
+      atasco mecánico de cilindro) para demostrar la seguridad Fail-Safe.
+
+3. DOCUMENTACIÓN TÉCNICA PARA ENTREGAR ("Resolucion/"):
+   - "Informe_TP_Modelado_y_Simulacion_Mecatronica.pdf":
+     Informe completo de 6 páginas A4 listo para entregar.
+===============================================================================
