@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>TP Mecatrónica II — Estación de llenado y vaciado de tanque</title>
+<style>
+    @page {
+      size: A4;
+      margin: 20mm 18mm 18mm 18mm;
+      @bottom-center {
+        content: "Hugo Ariel Martinez — Mecatrónica II — 2026   ·   Página " counter(page) " de " counter(pages);
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 8pt;
+        color: #666;
+      }
+    }
+    @page:first {
+      @bottom-center { content: none; }
+    }
+    * { box-sizing: border-box; }
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 10.8pt;
+      line-height: 1.42;
+      color: #111;
+      margin: 0;
+    }
+    h1 {
+      font-size: 15pt;
+      margin: 18pt 0 6pt 0;
+      page-break-after: avoid;
+    }
+    h2 {
+      font-size: 12pt;
+      margin: 12pt 0 4pt 0;
+      page-break-after: avoid;
+    }
+    h3 { font-size: 11pt; margin: 10pt 0 3pt 0; page-break-after: avoid; }
+    p { margin: 0 0 7pt 0; text-align: left; }
+    ul, ol { margin: 0 0 8pt 0; padding-left: 18pt; }
+    li { margin-bottom: 3pt; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 6pt 0 10pt 0;
+      font-size: 9pt;
+      page-break-inside: auto;
+    }
+    thead { display: table-header-group; }
+    tr { page-break-inside: avoid; }
+    th, td {
+      border: 1px solid #777;
+      padding: 3.5pt 5pt;
+      vertical-align: top;
+      text-align: left;
+    }
+    th { background: #eeeeee; font-weight: bold; }
+    figure {
+      margin: 8pt 0 11pt 0;
+      text-align: center;
+      page-break-inside: avoid;
+    }
+    figure img { max-width: 100%; }
+    figcaption {
+      font-size: 8.8pt;
+      color: #444;
+      margin-top: 3pt;
+      font-style: italic;
+    }
+    pre {
+      background: #f5f5f5;
+      border-left: 3px solid #999;
+      padding: 7pt 9pt;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 8.8pt;
+      white-space: pre-wrap;
+      page-break-inside: avoid;
+      margin: 6pt 0 9pt 0;
+    }
+    code { font-family: Consolas, "Courier New", monospace; font-size: 9pt; }
+    .note {
+      font-size: 9pt;
+      color: #444;
+      font-style: italic;
+      margin: 3pt 0 8pt 0;
+    }
+    .pagebreak { page-break-after: always; }
+    .cover {
+      text-align: center;
+      padding-top: 40mm;
+    }
+    .cover-title {
+      font-size: 25pt;
+      line-height: 1.15;
+      margin: 0 0 10pt 0;
+    }
+    .cover-sub { font-size: 14pt; margin: 0 0 4pt 0; }
+    .cover-sub2 { font-size: 11.5pt; color: #333; margin: 0 0 8mm 0; }
+    .cover-rule {
+      width: 55mm;
+      height: 1px;
+      background: #333;
+      margin: 8mm auto 10mm auto;
+    }
+    .cover-meta { font-size: 11.5pt; margin: 3pt 0; }
+    .cover-note {
+      font-size: 9.5pt;
+      color: #444;
+      margin: 5mm 0 0 0;
+    }
+    .placeholder {
+      border: 2px dashed #999;
+      padding: 18pt;
+      text-align: center;
+      color: #777;
+      font-style: italic;
+      margin: 8pt 0;
+      page-break-inside: avoid;
+    }
+    </style>
+</head>
+<body>
+<div class="cover"><h1 class="cover-title">Estación de llenado y vaciado de tanque</h1><p class="cover-sub">Trabajo Práctico de Mecatrónica II</p><p class="cover-sub2">Modelado y simulación de un sistema mecatrónico en CADe SIMU</p><div class="cover-rule"></div><p class="cover-meta">Universidad Tecnológica Nacional — Facultad Regional Paraná</p><p class="cover-meta">Tecnicatura Superior en Mecatrónica</p><p class="cover-meta">Cátedra: Mecatrónica II</p><p class="cover-meta">Alumno: Hugo Ariel Martinez</p><p class="cover-meta">Profesor: [completar]</p><p class="cover-meta">Año: 2026</p><p class="cover-meta">Fecha: [completar]</p><p class="cover-note">Sistema elegido de la lista de la guía: Sistema de llenado de tanque.</p><p class="cover-note">Herramienta de simulación: CADe SIMU (en lugar de FluidSIM).</p><div class="pagebreak"></div></div><h1>1. Descripción del sistema</h1><p>El sistema que elegí es una estación de llenado y vaciado de un tanque de agua. La función es mantener el nivel entre un mínimo y un máximo: una bomba llena el tanque y una electroválvula lo vacía. Dos flotantes, uno abajo y otro arriba, avisan cuándo se llegó a cada nivel.</p><p>La guía lo llama “Sistema de llenado de tanque”. Le agregué el vaciado para poder repetir el ciclo y probar los dos límites. El funcionamiento es simple: con el selector en LLENADO se aprieta MARCHA y arranca la bomba. Cuando el agua llega al flotante de arriba, la bomba se detiene sola. Para vaciar, se gira el selector a VACIADO y se abre la electroválvula. Cuando el nivel baja hasta el flotante de abajo, la válvula se cierra sola. Después se vuelve a LLENADO y se aprieta MARCHA para repetir el ciclo.</p><p>Lo elegí porque está en la lista de la guía, es fácil de explicar y se puede resolver con lógica eléctrica de contactos. No necesita neumática, así que lo pude simular completo en CADe SIMU. La parte mecánica es el tanque, la bomba y la válvula; la parte eléctrica es el motor y el contactor; la parte de sensores son los flotantes; y la parte de control es la lógica cableada.</p><p>Aplicación: este tipo de sistema se usa en tanques de reserva de agua, en procesos de llenado de mezclas, en riego, en plantas de tratamiento y en cualquier lugar donde haya que mantener un nivel entre dos límites.</p><p>Una aclaración sobre la herramienta: la guía pide FluidSIM, pero no tengo licencia. Por eso hice la simulación en CADe SIMU. Elegí un sistema eléctrico para que la simulación sea completa y no quede una parte sin probar. La lógica de contactos, el contactor, el motor y las lámparas se pueden simular bien en CADe SIMU.</p><table><thead><tr><th>Dato</th><th>Descripción</th></tr></thead><tbody><tr><td>Función</td><td>Mantener el nivel de un tanque entre un mínimo y un máximo.</td></tr><tr><td>Alimentación</td><td>220 V AC, monofásica.</td></tr><tr><td>Control</td><td>Lógica cableada con contactor y selector.</td></tr><tr><td>Protecciones</td><td>Interruptor automático QM1, fusible F2 y relé térmico F1.</td></tr><tr><td>Herramienta</td><td>CADe SIMU.</td></tr></tbody></table><h1>2. Entradas, proceso y salidas</h1><p>Entradas: son las órdenes del operador y las señales de los sensores. Proceso: es la lógica que decide. Salidas: son los elementos que hacen el trabajo.</p><h2>2.1. Entradas</h2><table><thead><tr><th>Tag</th><th>Componente</th><th>Contacto</th><th>Función</th></tr></thead><tbody><tr><td>S0</td><td>Pulsador de emergencia</td><td>NC</td><td>Corta el mando completo.</td></tr><tr><td>S1</td><td>Pulsador de marcha</td><td>NA</td><td>Arranca la bomba.</td></tr><tr><td>S2</td><td>Pulsador de paro</td><td>NC</td><td>Detiene la bomba y cierra la válvula.</td></tr><tr><td>SA1</td><td>Selector de 2 posiciones</td><td>NA / NC</td><td>Elige LLENADO o VACIADO.</td></tr><tr><td>N1</td><td>Flotante de nivel mínimo</td><td>NC</td><td>Abre cuando el agua baja del mínimo.</td></tr><tr><td>N2</td><td>Flotante de nivel máximo</td><td>NC</td><td>Abre cuando el tanque está lleno.</td></tr><tr><td>F1</td><td>Relé térmico</td><td>NC</td><td>Abre si el motor se sobrecarga.</td></tr></tbody></table><h2>2.2. Proceso</h2><p>El proceso no tiene PLC. La lógica está hecha con el contactor KM1, su contacto auxiliar y el selector SA1. QM1 protege la alimentación general y F1 el motor. F2 protege el mando, y S0, S2 y F1 están en serie con las bobinas: si alguno se abre, se apagan KM1 y YV1.</p><p>Los flotantes N1 y N2 son contactos NC. Esto es a propósito: si se corta un cable o se afloja un borne, el contacto se abre y el sistema queda detenido. Es más seguro que usar contactos NA para las paradas.</p><p class="note">QM1 y F2 no son entradas ni salidas: son protecciones. QM1 protege la instalación y el motor; F2 protege el circuito de mando.</p><h2>2.3. Salidas</h2><table><thead><tr><th>Tag</th><th>Componente</th><th>Función</th></tr></thead><tbody><tr><td>KM1</td><td>Contactor de la bomba</td><td>Da potencia al motor M1.</td></tr><tr><td>M1</td><td>Motor-bomba monofásico</td><td>Llena el tanque.</td></tr><tr><td>YV1</td><td>Electroválvula de vaciado</td><td>Abre el desagüe cuando está energizada.</td></tr><tr><td>H1</td><td>Lámpara verde</td><td>Indica bomba en marcha.</td></tr><tr><td>H2</td><td>Lámpara roja</td><td>Indica válvula de vaciado abierta.</td></tr></tbody></table><h1>3. Diagrama en bloques</h1><figure><img src="img/diagrama_bloques.svg" style="width:15.0cm; height:6.82cm; max-width:100%;" /><figcaption>Figura 1. Diagrama en bloques del sistema. La realimentación es el nivel del tanque, medido por N1 y N2.</figcaption></figure><p>El diagrama muestra cómo se conectan las partes. La energía va de la alimentación a la potencia. La información va de los pulsadores y flotantes a la lógica, y de la lógica a las bobinas.</p><p>La alimentación entrega 220 V AC. Las entradas son los pulsadores y los flotantes. El proceso es la lógica de contactos. Las salidas son el contactor, la válvula y las lámparas. La planta es el tanque, la bomba y la válvula.</p><p>La realimentación es el nivel del tanque: N1 y N2 le informan a la lógica si el agua está baja o si el tanque está lleno. Sin esos dos sensores, la lógica no sabría cuándo cortar la bomba ni cuándo cerrar la válvula. Ese es el lazo cerrado del sistema.</p><h1>4. Lógica de funcionamiento</h1><p>Primero escribí la secuencia en palabras y después la pasé a contactos. La idea era que la bomba no dependa de que el operador esté mirando el tanque.</p><h2>4.1. Secuencia</h2><ol><li>Selector en LLENADO, tanque no lleno (N2 cerrado), emergencia sin apretar (S0 cerrado), paro sin apretar (S2 cerrado) y térmico sin disparar (F1 cerrado).</li><li>Se aprieta S1. Se energiza KM1 y se enclava con su contacto auxiliar. Arranca M1 y se prende H1.</li><li>El tanque se llena. Cuando el agua llega a N2, el contacto NC se abre. Se desenergiza KM1, se apaga M1 y H1. La bomba queda detenida.</li><li>Se gira SA1 a VACIADO. Se energiza YV1, se abre la válvula y se prende H2. El tanque se vacía.</li><li>Cuando el agua baja hasta N1, el contacto NC se abre. Se desenergiza YV1, se cierra la válvula y se apaga H2.</li><li>Se vuelve a LLENADO y se aprieta S1 para repetir el ciclo.</li></ol><p>Si se aprieta S0 o S2, o si dispara F1, se corta el mando y se apagan KM1 y YV1. La válvula es normalmente cerrada: sin tensión queda cerrada.</p><h2>4.2. Variables y ecuaciones</h2><p>Para escribir las ecuaciones usé 1 cuando el contacto está cerrado y 0 cuando está abierto.</p><table><thead><tr><th>Variable</th><th>Significado</th><th>Vale 1 cuando...</th><th>Vale 0 cuando...</th></tr></thead><tbody><tr><td>S0</td><td>Emergencia</td><td>No está apretada (NC cerrado)</td><td>Está apretada (abierto)</td></tr><tr><td>S1</td><td>Marcha</td><td>Está apretada (NA cerrado)</td><td>No está apretada (abierto)</td></tr><tr><td>S2</td><td>Paro</td><td>No está apretado (NC cerrado)</td><td>Está apretado (abierto)</td></tr><tr><td>SA1</td><td>Selector</td><td>Está en LLENADO</td><td>Está en VACIADO</td></tr><tr><td>N1</td><td>Flotante mínimo</td><td>Nivel sobre el mínimo (NC cerrado)</td><td>Nivel en el mínimo (abierto)</td></tr><tr><td>N2</td><td>Flotante máximo</td><td>Tanque no lleno (NC cerrado)</td><td>Tanque lleno (abierto)</td></tr><tr><td>F1</td><td>Térmico</td><td>Normal (NC cerrado)</td><td>Disparado (abierto)</td></tr></tbody></table><pre><code>KM1 = F2 · S0 · S2 · F1 · SA1 · N2 · (S1 + KM1)
+YV1 = F2 · S0 · S2 · F1 · SA1&#x27; · N1
+H1  = KM1
+H2  = YV1</code></pre><p>SA1' es el contacto NC del selector, que está cerrado en VACIADO.</p><ul><li><strong>F2 · S0 · S2 · F1</strong> es la cadena de seguridad. Si cualquiera se abre, KM1 y YV1 se apagan.</li><li><strong>SA1</strong> deja pasar el mando solo en LLENADO. <strong>SA1'</strong> deja pasar solo en VACIADO. Por eso la bomba y la válvula no pueden funcionar juntas.</li><li><strong>N2</strong> está cerrado mientras el tanque no está lleno. Cuando se abre, corta KM1.</li><li><strong>(S1 + KM1)</strong> es el enclavamiento. S1 arranca y KM1 se mantiene solo; cuando N2 se abre, se pierde el enclavamiento y hay que volver a apretar S1.</li><li><strong>N1</strong> está cerrado mientras hay agua por encima del mínimo. Cuando se abre, corta YV1 y evita que la válvula quede abierta con el tanque vacío.</li></ul><h2>4.3. Ladder</h2><p>El circuito de mando queda así:</p><table><thead><tr><th>Estado</th><th>SA1</th><th>N1</th><th>N2</th><th>KM1</th><th>YV1</th><th>Qué pasa</th></tr></thead><tbody><tr><td>Reposo</td><td>LLENADO</td><td>1</td><td>1</td><td>0</td><td>0</td><td>Espera S1.</td></tr><tr><td>Llenando</td><td>LLENADO</td><td>1</td><td>1</td><td>1</td><td>0</td><td>Bomba en marcha.</td></tr><tr><td>Lleno</td><td>LLENADO</td><td>1</td><td>0</td><td>0</td><td>0</td><td>N2 corta la bomba.</td></tr><tr><td>Vaciando</td><td>VACIADO</td><td>1</td><td>0/1</td><td>0</td><td>1</td><td>Válvula abierta.</td></tr><tr><td>Mínimo</td><td>VACIADO</td><td>0</td><td>1</td><td>0</td><td>0</td><td>N1 cierra la válvula.</td></tr><tr><td>Emergencia</td><td>—</td><td>—</td><td>—</td><td>0</td><td>0</td><td>Todo apagado.</td></tr></tbody></table><p class="note">En la tabla, 1 significa contacto cerrado y 0 contacto abierto. En el estado LLENADO, si el operador no gira el selector, la bomba queda detenida con el tanque lleno.</p><figure><img src="img/circuito_mando.svg" style="width:13.8cm; height:6.9cm; max-width:100%;" /><figcaption>Figura 2. Circuito de mando simplificado. H1 va en paralelo con KM1 y H2 con YV1. SA1 NA y SA1 NC son las dos posiciones del mismo selector; los flotantes se representan con finales de carrera NC.</figcaption></figure><h1>5. Simulación en CADe SIMU</h1><h2>5.1. Circuito de potencia</h2><figure><img src="img/circuito_potencia.svg" style="width:11.5cm; height:7.57cm; max-width:100%;" /><figcaption>Figura 3. Circuito de potencia. QM1 protege la instalación, KM1 da paso a la bomba y F1 protege el motor.</figcaption></figure><p>Primero armé la potencia y la probé con el motor solo. Después agregué el mando. Así, si algo no andaba, sabía si el problema estaba en la potencia o en la lógica. Perdí un rato con el contacto auxiliar de KM1 porque al principio no lo había puesto y la bomba se apagaba al soltar S1. Después entendí que el contacto auxiliar hace el enclavamiento.</p><p>El circuito de potencia es: L1 → QM1 → KM1 → F1 → M1 → N. QM1 protege la instalación, KM1 da paso a la bomba y F1 protege el motor contra sobrecarga. El motor es monofásico de 220 V.</p><h2>5.2. Circuito de mando</h2><p>El circuito de mando se alimenta de L1, después de QM1: L1 → F2 → S0 → S2 → F1 → ramas. La rama de LLENADO tiene SA1 NA, N2 NC, el paralelo S1/KM1 y la bobina KM1. La rama de VACIADO tiene SA1 NC, N1 NC y la bobina YV1. H1 va en paralelo con KM1 y H2 con YV1.</p><p>La bobina de KM1 y la de YV1 son de 220 V AC. Las lámparas también. En una instalación real convendría usar mando a 24 V, pero para la simulación lo hice a 220 V para no agregar una fuente.</p><h2>5.3. Componentes usados</h2><table><thead><tr><th>Componente en CADe SIMU</th><th>Tag</th><th>Detalle</th></tr></thead><tbody><tr><td>Alimentación F+N</td><td>—</td><td>220 V AC</td></tr><tr><td>Interruptor automático 2P</td><td>QM1</td><td>6 A</td></tr><tr><td>Fusible</td><td>F2</td><td>2 A, circuito de mando</td></tr><tr><td>Contactor 2P con auxiliar NA</td><td>KM1</td><td>Bobina 220 V AC</td></tr><tr><td>Relé térmico</td><td>F1</td><td>Regulado a 2 A</td></tr><tr><td>Motor monofásico</td><td>M1</td><td>Bomba de 0,5 HP</td></tr><tr><td>Pulsador NC</td><td>S0</td><td>Emergencia tipo seta</td></tr><tr><td>Pulsador NA</td><td>S1</td><td>Marcha</td></tr><tr><td>Pulsador NC</td><td>S2</td><td>Paro</td></tr><tr><td>Selector 2 posiciones</td><td>SA1</td><td>LLENADO / VACIADO</td></tr><tr><td>Final de carrera NC</td><td>N1</td><td>Flotante de nivel mínimo</td></tr><tr><td>Final de carrera NC</td><td>N2</td><td>Flotante de nivel máximo</td></tr><tr><td>Bobina de electroválvula</td><td>YV1</td><td>220 V AC, normalmente cerrada</td></tr><tr><td>Lámpara verde</td><td>H1</td><td>220 V, bomba en marcha</td></tr><tr><td>Lámpara roja</td><td>H2</td><td>220 V, válvula abierta</td></tr></tbody></table><h2>5.4. Pasos de armado</h2><ol><li>Abrir CADe SIMU y configurar hoja A4 horizontal. Completar el cajetín con nombre, materia y fecha.</li><li>Colocar la alimentación F+N, el interruptor QM1 y el fusible F2.</li><li>Armar la potencia: QM1 → KM1 → F1 → M1 → N. Conectar PE al motor.</li><li>Armar la cadena de mando: F2 → S0 NC → S2 NC → F1 NC.</li><li>Rama de LLENADO: SA1 NA → N2 NC → (S1 NA en paralelo con KM1 NA) → bobina KM1 → N.</li><li>Rama de VACIADO: SA1 NC → N1 NC → bobina YV1 → N.</li><li>Conectar H1 en paralelo con KM1 y H2 en paralelo con YV1.</li><li>Etiquetar todos los componentes y verificar que no haya dos con el mismo nombre.</li><li>Guardar el archivo como TP_Llenado_Tanque.cad.</li><li>Pasar a modo simulación y probar la secuencia.</li></ol><p>Detalles que me complicaron en CADe SIMU:</p><ul><li>Los pulsadores vuelven solos. Para mantenerlos apretados hay que hacer clic y arrastrar un poco.</li><li>Los finales de carrera N1 y N2 son NC: en la simulación se hace clic para abrirlos y representar el flotante actuado.</li><li>Si dos componentes tienen el mismo nombre, la simulación no funciona. Hay que renombrarlos.</li><li>El contactor KM1 necesita un contacto auxiliar NA para el enclavamiento. No alcanza con la bobina.</li></ul><h2>5.5. Pruebas</h2><p>Antes de entregar voy a probar estos casos. La columna Resultado la completo después de simular.</p><table><thead><tr><th>N.º</th><th>Prueba</th><th>Acción</th><th>Resultado esperado</th><th>Resultado (completar)</th></tr></thead><tbody><tr><td>1</td><td>Marcha</td><td>Apretar S1</td><td>KM1 y M1 en marcha; H1 encendida.</td><td></td></tr><tr><td>2</td><td>Paro</td><td>Apretar S2</td><td>KM1 y M1 se detienen; H1 apagada.</td><td></td></tr><tr><td>3</td><td>Tanque lleno</td><td>Abrir N2</td><td>KM1 se detiene; H1 apagada.</td><td></td></tr><tr><td>4</td><td>Vaciado</td><td>SA1 en VACIADO</td><td>YV1 se energiza; H2 encendida.</td><td></td></tr><tr><td>5</td><td>Nivel mínimo</td><td>Abrir N1</td><td>YV1 se desenergiza; H2 apagada.</td><td></td></tr><tr><td>6</td><td>Emergencia</td><td>Apretar S0</td><td>Todo se apaga.</td><td></td></tr><tr><td>7</td><td>Térmico</td><td>Disparar F1</td><td>Todo se apaga.</td><td></td></tr><tr><td>8</td><td>Enclavamiento</td><td>Apretar S1 y soltar</td><td>KM1 queda encendido.</td><td></td></tr><tr><td>9</td><td>Interlock</td><td>SA1 en VACIADO + S1</td><td>La bomba no arranca.</td><td></td></tr><tr><td>10</td><td>Repetición</td><td>N1 abierto, SA1 en LLENADO, S1</td><td>La bomba vuelve a arrancar.</td><td></td></tr></tbody></table><p class="note">Las capturas de pantalla de las pruebas están en el Anexo B.</p><h1>6. Demostración y conclusión</h1><h2>6.1. Guion de la demostración</h2><ol><li>Mostrar el esquema y explicar los bloques: entradas, proceso, salidas y realimentación.</li><li>Arrancar la bomba con S1 y mostrar H1.</li><li>Simular el tanque lleno abriendo N2 y mostrar que la bomba se detiene.</li><li>Girar el selector a VACIADO y mostrar H2 y la válvula.</li><li>Simular el nivel mínimo abriendo N1 y mostrar que la válvula se cierra.</li><li>Probar S0 y mostrar que todo se apaga.</li><li>Explicar por qué usé CADe SIMU y no FluidSIM.</li></ol><p>Tiempo estimado: 3 minutos.</p><h2>6.2. Conclusión</h2><p>Lo que más me costó fue separar la potencia del mando. Al principio quería poner los flotantes en serie con el motor, pero me di cuenta de que así el contacto del flotante corta la corriente del motor con carga y no es lo correcto. La solución fue poner los flotantes en el circuito de mando, que maneja la bobina del contactor.</p><p>También aprendí a usar un contacto auxiliar para el enclavamiento y a poner las protecciones en serie. El sistema quedó simple pero completo: arranca, se detiene solo cuando el tanque está lleno, se vacía y se cierra cuando llega al mínimo.</p><p>No automaticé el vaciado: hay que girar el selector. Lo dejé así para que el circuito sea fácil de entender. Una mejora posible sería agregar un relé de memoria que abra la válvula cuando N2 se active y la cierre cuando N1 se active. Otra mejora sería usar mando a 24 V y agregar un piloto de tanque lleno.</p><p>Usé CADe SIMU porque no tengo FluidSIM. La parte eléctrica se puede simular completa y el sistema no necesita neumática. Si la cátedra pide FluidSIM, se podría hacer una variante neumática, pero para este sistema no hace falta.</p><h1>Anexo A. Lista de materiales</h1><ul><li>Tanque de 100 L con base y desagüe.</li><li>Bomba monofásica de 0,5 HP, 220 V.</li><li>Electroválvula normalmente cerrada de 1/2", 220 V.</li><li>Dos flotantes NC (nivel mínimo y nivel máximo).</li><li>Tablero con QM1, F2, KM1, F1, S0, S1, S2, SA1, H1, H2, borneras y cables.</li></ul><h1>Anexo B. Capturas</h1><p>Acá van las capturas de CADe SIMU. La primera muestra la bomba en marcha y la segunda la válvula de vaciado abierta.</p><div class="placeholder">Captura 1: bomba en marcha (pegar captura de CADe SIMU)</div><div class="placeholder">Captura 2: válvula de vaciado abierta (pegar captura de CADe SIMU)</div><h1>Anexo C. Cosas que corregí</h1><ul><li>Primero puse N2 en el circuito de potencia. Mal: el contacto del flotante no está pensado para cortar el motor. Lo pasé al circuito de mando.</li><li>Me olvidé del contacto auxiliar de KM1 y la bomba arrancaba solo mientras tenía apretado S1. Agregué el NA en paralelo.</li><li>Usé un solo contacto del selector y la válvula se abría también en LLENADO. Lo corregí usando NA para LLENADO y NC para VACIADO.</li><li>Al principio las lámparas estaban en serie con las bobinas. Las puse en paralelo.</li></ul>
+</body>
+</html>
