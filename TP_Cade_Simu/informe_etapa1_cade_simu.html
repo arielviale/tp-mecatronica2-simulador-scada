@@ -1,0 +1,1070 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Trabajo Práctico: Modelado y Simulación en Cade simu - Etapa 1</title>
+  <style>
+    @page {
+      size: A4 portrait;
+      margin: 12mm 14mm 12mm 14mm;
+    }
+    * {
+      box-sizing: border-box;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+    body {
+      font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif;
+      color: #0f172a;
+      background: #ffffff;
+      margin: 0;
+      padding: 0;
+      font-size: 8.4pt;
+      line-height: 1.36;
+    }
+    .page {
+      width: 100%;
+      min-height: 271mm;
+      max-height: 271mm;
+      page-break-after: always;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+    }
+    .page:last-child {
+      page-break-after: avoid;
+    }
+
+    /* ENCABEZADOS Y METADATOS */
+    .header-table {
+      width: 100%;
+      border-collapse: collapse;
+      border-bottom: 2px solid #004b87;
+      padding-bottom: 4px;
+      margin-bottom: 6px;
+    }
+    .header-table td {
+      border: none;
+      padding: 0;
+      vertical-align: middle;
+    }
+    .inst-title {
+      font-size: 11pt;
+      font-weight: 800;
+      color: #004b87;
+      letter-spacing: -0.2px;
+      margin: 0;
+      text-transform: uppercase;
+    }
+    .inst-sub {
+      font-size: 8.2pt;
+      color: #475569;
+      font-weight: 600;
+      margin: 1px 0 0 0;
+    }
+    .tp-badge {
+      text-align: right;
+      font-size: 7.8pt;
+      color: #334155;
+      line-height: 1.25;
+    }
+    .tp-badge b {
+      color: #004b87;
+      font-size: 8.4pt;
+    }
+
+    .main-banner {
+      background: linear-gradient(135deg, #004b87 0%, #0369a1 100%);
+      color: #ffffff;
+      padding: 6px 10px;
+      border-radius: 4px;
+      margin-bottom: 6px;
+    }
+    .main-banner h1 {
+      margin: 0;
+      font-size: 10.6pt;
+      font-weight: 800;
+      letter-spacing: -0.2px;
+      text-transform: uppercase;
+    }
+    .main-banner p {
+      margin: 2px 0 0 0;
+      font-size: 7.8pt;
+      opacity: 0.95;
+    }
+
+    .sec-title {
+      color: #004b87;
+      font-size: 9.2pt;
+      font-weight: 800;
+      border-left: 3.5px solid #0284c7;
+      padding-left: 6px;
+      margin: 5px 0 3px 0;
+      text-transform: uppercase;
+      letter-spacing: -0.1px;
+    }
+    .sub-title {
+      color: #0f172a;
+      font-size: 8.4pt;
+      font-weight: 700;
+      margin: 4px 0 2px 0;
+    }
+    p {
+      margin: 0 0 4px 0;
+      text-align: justify;
+    }
+
+    /* TABLAS DE INGENIERÍA */
+    table.data-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 2px 0 4px 0;
+      font-size: 7.0pt;
+    }
+    table.data-table th, table.data-table td {
+      border: 1px solid #cbd5e1;
+      padding: 1.8px 4.5px;
+      vertical-align: middle;
+    }
+    table.data-table th {
+      background-color: #f1f5f9;
+      color: #004b87;
+      font-weight: 700;
+      text-align: left;
+    }
+    table.data-table tr:nth-child(even) td {
+      background-color: #f8fafc;
+    }
+    .mono {
+      font-family: 'JetBrains Mono', Consolas, monospace;
+      font-weight: 600;
+      color: #0f172a;
+    }
+
+    /* CAJAS Y CARDS */
+    .grid-3 {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 6px;
+      margin-bottom: 5px;
+    }
+    .card {
+      border: 1px solid #e2e8f0;
+      border-radius: 4px;
+      padding: 5px 7px;
+      background: #f8fafc;
+      font-size: 7.6pt;
+    }
+    .card h4 {
+      margin: 0 0 2px 0;
+      color: #004b87;
+      font-size: 8pt;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .svg-container {
+      border: 1px solid #cbd5e1;
+      border-radius: 4px;
+      background: #ffffff;
+      padding: 3px;
+      margin: 3px 0 4px 0;
+      text-align: center;
+    }
+    .svg-caption {
+      font-size: 6.9pt;
+      color: #64748b;
+      margin-top: 1.5px;
+      font-style: italic;
+      text-align: center;
+    }
+
+    .running-header {
+      font-size: 6.8pt;
+      color: #64748b;
+      display: flex;
+      justify-content: space-between;
+      border-bottom: 0.8px solid #cbd5e1;
+      padding-bottom: 2px;
+      margin-bottom: 5px;
+    }
+    .running-footer {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      font-size: 6.8pt;
+      color: #94a3b8;
+      display: flex;
+      justify-content: space-between;
+      border-top: 0.8px solid #e2e8f0;
+      padding-top: 2px;
+    }
+
+    .alert-box {
+      background-color: #f0fdf4;
+      border: 1px solid #86efac;
+      border-left: 3.5px solid #16a34a;
+      border-radius: 3px;
+      padding: 4px 8px;
+      margin: 4px 0;
+      font-size: 7.3pt;
+      color: #14532d;
+    }
+    .alert-box b {
+      color: #166534;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ===================================================================== -->
+  <!-- PÁGINA 1: PUNTO 1 - SELECCIÓN Y DESCRIPCIÓN DEL SISTEMA MECATRÓNICO   -->
+  <!-- ===================================================================== -->
+  <div class="page">
+    <table class="header-table">
+      <tr>
+        <td>
+          <div class="inst-title">Universidad Tecnológica Nacional</div>
+          <div class="inst-sub">Facultad Regional Paraná · Tecnicatura Superior en Mecatrónica · Cátedra: Mecatrónica II</div>
+        </td>
+        <td class="tp-badge">
+          <b>Guía TP: Modelado y Simulación</b><br>
+          Software Objetivado: <b>Cade simu</b><br>
+          Alumno: <b>Hugo Ariel Martinez</b>
+        </td>
+      </tr>
+    </table>
+
+    <div class="main-banner">
+      <h1>Modelado y Simulación de un Sistema Mecatrónico: Clasificador Electroneumático de Piezas</h1>
+      <p>Resolución Integral de la Guía de Trabajos Prácticos (Etapa 1: Puntos 1 al 4 — Especificación, E/S, Diagrama en Bloques y Lógica Secuencial)</p>
+    </div>
+
+    <div class="sec-title">1. Selección y Descripción del Sistema Mecatrónico (Consigna Punto 1)</div>
+    <p>
+      Para el cumplimiento del presente Trabajo Práctico se ha seleccionado el <b>Sistema de Clasificación de Piezas en Cinta Transportadora con Expulsores Electroneumáticos</b> (sistema sugerido en la guía oficial). Este sistema representa un arquetipo fundamental de la ingeniería mecatrónica moderna, donde interactúan en tiempo real los cuatro dominios tecnológicos: mecánica de transporte, neumática industrial de potencia, sensórica heterogénea y control lógico secuencial de lazo cerrado.
+    </p>
+
+    <div class="grid-3">
+      <div class="card">
+        <h4>Función que Cumple</h4>
+        Transportar de forma continua piezas en una banda motorizada (<b>M1</b>), censar su paso en cabecera (<b>B1</b>), discriminar su composición material mediante detección sin contacto (Metálicas en <b>B2</b> vs. Plásticas en <b>B3</b>) y expulsarlas automáticamente mediante cilindros neumáticos (<b>1A1</b> y <b>2A1</b>) a tolvas específicas, evacuando piezas de descarte al final de cinta.
+      </div>
+      <div class="card">
+        <h4>Aplicación Industrial</h4>
+        Líneas de manufactura flexible (FMS), celdas de alimentación y clasificación de piezas maquinadas, separación automática de envases en plantas de reciclaje (aluminio vs. polímeros PET/PEAD), centros logísticos de empaque y desvío de piezas defectuosas en controles de calidad robotizados.
+      </div>
+      <div class="card">
+        <h4>Justificación Mecatrónica</h4>
+        No puede resolverse con una única disciplina: exige coordinar el accionamiento electromecánico continuo de un motor de inducción con la cinemática lineal de actuadores neumáticos de doble efecto, gobernados mediante lazo cerrado con realimentación sensorial y enclavamientos de seguridad intrínseca.
+      </div>
+    </div>
+
+    <div class="sub-title">1.1. Arquitectura Física y Layout Mecatrónico de la Planta (Vista Superior)</div>
+    <div class="svg-container">
+      <svg viewBox="0 0 740 180" width="100%" height="auto">
+        <!-- Fondo de planta -->
+        <rect x="2" y="2" width="736" height="176" rx="5" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.2"/>
+        
+        <!-- FRL y Red Neumática -->
+        <rect x="15" y="10" width="130" height="28" rx="3" fill="#e0f2fe" stroke="#0284c7" stroke-width="1.2"/>
+        <text x="80" y="23" fill="#0369a1" font-size="7.5" font-weight="800" text-anchor="middle">ALIMENTACIÓN FRL (0Z1)</text>
+        <text x="80" y="33" fill="#0f172a" font-size="6.8" font-weight="700" text-anchor="middle">Red 6,0 bar + Presostato P1 (≥5b)</text>
+
+        <!-- Cilindro 1A1 (Metal) -->
+        <g transform="translate(260, 8)">
+          <text x="35" y="10" fill="#0284c7" font-size="8.2" font-weight="800" text-anchor="middle">CILINDRO 1A1 (EXPULSOR METAL)</text>
+          <!-- Cuerpo cilindro -->
+          <rect x="5" y="15" width="60" height="22" fill="#ffffff" stroke="#0f172a" stroke-width="1.5"/>
+          <rect x="10" y="17" width="6" height="18" fill="#334155"/>
+          <rect x="16" y="24" width="46" height="4" fill="#64748b"/>
+          <rect x="62" y="20" width="4" height="12" fill="#0284c7"/>
+          <!-- Fines de carrera -->
+          <rect x="6" y="39" width="22" height="11" rx="2" fill="#dcfce7" stroke="#16a34a" stroke-width="1"/>
+          <text x="17" y="47" fill="#15803d" font-size="6.5" font-weight="800" text-anchor="middle">1B1(a0)</text>
+          <rect x="42" y="39" width="22" height="11" rx="2" fill="#dbeafe" stroke="#2563eb" stroke-width="1"/>
+          <text x="53" y="47" fill="#1d4ed8" font-size="6.5" font-weight="800" text-anchor="middle">1B2(a1)</text>
+        </g>
+
+        <!-- Cilindro 2A1 (Plástico) -->
+        <g transform="translate(480, 8)">
+          <text x="35" y="10" fill="#d97706" font-size="8.2" font-weight="800" text-anchor="middle">CILINDRO 2A1 (EXPULSOR PLÁSTICO)</text>
+          <rect x="5" y="15" width="60" height="22" fill="#ffffff" stroke="#0f172a" stroke-width="1.5"/>
+          <rect x="10" y="17" width="6" height="18" fill="#334155"/>
+          <rect x="16" y="24" width="46" height="4" fill="#64748b"/>
+          <rect x="62" y="20" width="4" height="12" fill="#d97706"/>
+          <!-- Fines de carrera -->
+          <rect x="6" y="39" width="22" height="11" rx="2" fill="#dcfce7" stroke="#16a34a" stroke-width="1"/>
+          <text x="17" y="47" fill="#15803d" font-size="6.5" font-weight="800" text-anchor="middle">2B1(b0)</text>
+          <rect x="42" y="39" width="22" height="11" rx="2" fill="#fef3c7" stroke="#d97706" stroke-width="1"/>
+          <text x="53" y="47" fill="#b45309" font-size="6.5" font-weight="800" text-anchor="middle">2B2(b1)</text>
+        </g>
+
+        <!-- Cinta transportadora física -->
+        <rect x="50" y="70" width="610" height="40" rx="4" fill="#334155" stroke="#1e293b" stroke-width="1.8"/>
+        <!-- Rodillos y líneas de banda -->
+        <circle cx="70" cy="90" r="16" fill="#475569" stroke="#94a3b8" stroke-width="1.5"/>
+        <circle cx="640" cy="90" r="16" fill="#475569" stroke="#94a3b8" stroke-width="1.5"/>
+        <line x1="88" y1="78" x2="622" y2="78" stroke="#64748b" stroke-dasharray="8 6"/>
+        <line x1="88" y1="102" x2="622" y2="102" stroke="#64748b" stroke-dasharray="8 6"/>
+
+        <!-- Motorreductor M1 -->
+        <rect x="10" y="75" width="38" height="30" rx="3" fill="#1e293b" stroke="#004b87" stroke-width="1.5"/>
+        <text x="29" y="88" fill="#38bdf8" font-size="7" font-weight="800" text-anchor="middle">MOTOR M1</text>
+        <text x="29" y="98" fill="#94a3b8" font-size="6.2" font-weight="700" text-anchor="middle">(KM1)</text>
+
+        <!-- Sensores montados sobre la cinta -->
+        <!-- Sensor B1 Óptico -->
+        <g transform="translate(160, 60)">
+          <line x1="0" y1="10" x2="0" y2="50" stroke="#10b981" stroke-width="1.8" stroke-dasharray="3 2"/>
+          <rect x="-24" y="-2" width="48" height="14" rx="2" fill="#10b981" stroke="#047857" stroke-width="1"/>
+          <text x="0" y="8" fill="#ffffff" font-size="6.8" font-weight="800" text-anchor="middle">B1 (ÓPTICO)</text>
+        </g>
+
+        <!-- Sensor B2 Inductivo -->
+        <g transform="translate(295, 60)">
+          <line x1="0" y1="10" x2="0" y2="50" stroke="#0284c7" stroke-width="1.8" stroke-dasharray="3 2"/>
+          <rect x="-26" y="-2" width="52" height="14" rx="2" fill="#0284c7" stroke="#0369a1" stroke-width="1"/>
+          <text x="0" y="8" fill="#ffffff" font-size="6.8" font-weight="800" text-anchor="middle">B2 (INDUCT.)</text>
+        </g>
+
+        <!-- Sensor B3 Capacitivo -->
+        <g transform="translate(515, 60)">
+          <line x1="0" y1="10" x2="0" y2="50" stroke="#d97706" stroke-width="1.8" stroke-dasharray="3 2"/>
+          <rect x="-26" y="-2" width="52" height="14" rx="2" fill="#d97706" stroke="#b45309" stroke-width="1"/>
+          <text x="0" y="8" fill="#ffffff" font-size="6.8" font-weight="800" text-anchor="middle">B3 (CAPAC.)</text>
+        </g>
+
+        <!-- Piezas en cinta -->
+        <circle cx="120" cy="90" r="7.5" fill="#94a3b8" stroke="#ffffff" stroke-width="1.5"/>
+        <text x="120" y="92.5" fill="#0f172a" font-size="6.5" font-weight="800" text-anchor="middle">PZ</text>
+
+        <!-- Tolvas receptoras inferiores -->
+        <!-- Tolva 1 Metal -->
+        <g transform="translate(260, 118)">
+          <polygon points="5,0 65,0 55,48 15,48" fill="#e0f2fe" stroke="#0284c7" stroke-width="1.4"/>
+          <text x="35" y="20" fill="#0369a1" font-size="7.5" font-weight="800" text-anchor="middle">TOLVA 1</text>
+          <text x="35" y="32" fill="#0f172a" font-size="6.6" font-weight="700" text-anchor="middle">METALES (Acero)</text>
+          <text x="35" y="42" fill="#0284c7" font-size="6.2" font-weight="700" text-anchor="middle">Acciona: 1A1 (1Y1)</text>
+        </g>
+
+        <!-- Tolva 2 Plástico -->
+        <g transform="translate(480, 118)">
+          <polygon points="5,0 65,0 55,48 15,48" fill="#fef3c7" stroke="#d97706" stroke-width="1.4"/>
+          <text x="35" y="20" fill="#b45309" font-size="7.5" font-weight="800" text-anchor="middle">TOLVA 2</text>
+          <text x="35" y="32" fill="#0f172a" font-size="6.6" font-weight="700" text-anchor="middle">PLÁSTICOS (PET)</text>
+          <text x="35" y="42" fill="#d97706" font-size="6.2" font-weight="700" text-anchor="middle">Acciona: 2A1 (2Y1)</text>
+        </g>
+
+        <!-- Tolva 3 Descarte -->
+        <g transform="translate(668, 70)">
+          <rect x="0" y="0" width="60" height="40" rx="3" fill="#f1f5f9" stroke="#64748b" stroke-width="1.4"/>
+          <text x="30" y="16" fill="#334155" font-size="7.5" font-weight="800" text-anchor="middle">TOLVA 3</text>
+          <text x="30" y="26" fill="#64748b" font-size="6.5" font-weight="700" text-anchor="middle">DESCARTE</text>
+          <text x="30" y="35" fill="#0f172a" font-size="6" font-weight="600" text-anchor="middle">(Final Cinta)</text>
+        </g>
+      </svg>
+      <div class="svg-caption">Figura 1.1: Esquema de distribución física, actuadores neumáticos, sensórica heterogénea y tolvas receptoras.</div>
+    </div>
+
+    <div class="sub-title">1.2. Descripción Operativa de las Estaciones</div>
+    <ul style="margin: 0; padding-left: 14px; font-size: 7.7pt; line-height: 1.35;">
+      <li><b>Zona de Carga y Validación (B1):</b> Las piezas ingresan a la banda de velocidad regulada por el contactor <b>KM1</b>. El sensor óptico <b>B1</b> valida la entrada legal de la pieza, enclava la memoria de tránsito <b>KB1</b> e incrementa el contador de lote.</li>
+      <li><b>Estación 1 - Clasificación de Metales (B2 + 1A1):</b> Si la pieza en tránsito posee composición metálica, activa el sensor de proximidad inductivo <b>B2</b>. El sistema frena la cinta (para evitar deformación del vástago), activa la electroválvula <b>1Y1</b> provocando el avance del cilindro <b>1A1</b> hasta tocar <b>1B2</b>, expulsándola a Tolva 1, y retorna por resorte a <b>1B1</b> reanudando la cinta.</li>
+      <li><b>Estación 2 - Clasificación de Plásticos (B3 + 2A1):</b> Si la pieza es polimérica, no activa a <b>B2</b> y avanza hasta el sensor capacitivo <b>B3</b>, disparando el cilindro <b>2A1</b> comandado por <b>2Y1</b> hacia la Tolva 2 entre los límites <b>2B1</b> y <b>2B2</b>.</li>
+      <li><b>Estación 3 - Tolva de Descarte (Tolva 3):</b> Aquellas piezas no clasificadas en las dos estaciones anteriores caen por gravedad al final de línea.</li>
+    </ul>
+
+    <div class="running-footer">
+      <span>UTN Facultad Regional Paraná · Mecatrónica II</span>
+      <span>Página 1 de 5</span>
+    </div>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- PÁGINA 2: PUNTO 2 - IDENTIFICACIÓN DE ENTRADAS, PROCESO Y SALIDAS     -->
+  <!-- ===================================================================== -->
+  <div class="page">
+    <div class="running-header">
+      <span>UTN Facultad Regional Paraná · Mecatrónica II — Modelado y Simulación en Cade simu</span>
+      <span>Alumno: Hugo Ariel Martinez · Pág. 2 de 5</span>
+    </div>
+
+    <div class="sec-title">2. Identificación de Entradas, Proceso y Salidas (Consigna Punto 2)</div>
+    <p>
+      El modelado mecatrónico riguroso exige categorizar con absoluta precisión las variables de campo, distinguiendo la naturaleza física de cada captador, la etapa de procesamiento lógico-secuencial y los elementos finales de potencia (normas <b>IEC 61131-3</b> e <b>ISO 1219-2</b>).
+    </p>
+
+    <div class="sub-title">2.1. Tabla Maestra de Entradas (Pulsadores de Mando, Sensores y Fines de Carrera)</div>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th style="width: 14%;">Identificador</th>
+          <th style="width: 16%;">Categoría</th>
+          <th style="width: 25%;">Tecnología / Componente</th>
+          <th style="width: 15%;">Tipo de Contacto</th>
+          <th style="width: 30%;">Función Operativa y Seguridad</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="mono">S0 (%I0.0)</td>
+          <td>Seguridad</td>
+          <td>Pulsador golpe de puño (Seta)</td>
+          <td class="mono">NC (24V Fail-Safe)</td>
+          <td>Parada de Emergencia: interrumpe el mando, retrae cilindros y enclava relé de fallo KF.</td>
+        </tr>
+        <tr>
+          <td class="mono">S1 (%I0.1)</td>
+          <td>Pulsador Mando</td>
+          <td>Pulsador rasante verde</td>
+          <td class="mono">NA (24V DC)</td>
+          <td>Orden de Marcha general: enclava memoria K1 si las condiciones iniciales son válidas.</td>
+        </tr>
+        <tr>
+          <td class="mono">S2 (%I0.2)</td>
+          <td>Pulsador Mando</td>
+          <td>Pulsador rasante rojo</td>
+          <td class="mono">NC (24V DC)</td>
+          <td>Orden de Parada normal: desenclava K1 deteniendo el transporte sin pérdida de estado.</td>
+        </tr>
+        <tr>
+          <td class="mono">S3 (%I0.7)</td>
+          <td>Seguridad / Reset</td>
+          <td>Pulsador rasante azul</td>
+          <td class="mono">NA (24V DC)</td>
+          <td>Rearme de Alarma / Reset: desenclava relé KF tras subsanar una falla o emergencia.</td>
+        </tr>
+        <tr>
+          <td class="mono">B1 (%I0.3)</td>
+          <td>Sensor Presencia</td>
+          <td>Barrera Fotoeléctrica Infrarroja</td>
+          <td class="mono">PNP NA (24V)</td>
+          <td>Registra ingreso en cabecera, incrementa lote y valida permiso de tránsito (KB1).</td>
+        </tr>
+        <tr>
+          <td class="mono">B2 (%I0.4)</td>
+          <td>Sensor Material</td>
+          <td>Detector Inductivo M18</td>
+          <td class="mono">PNP NA (24V)</td>
+          <td>Detecta presencia de masa ferromagnética/metálica frente a estación 1 (Cilindro 1A1).</td>
+        </tr>
+        <tr>
+          <td class="mono">B3 (%I0.5)</td>
+          <td>Sensor Material</td>
+          <td>Detector Capacitivo M18</td>
+          <td class="mono">PNP NA (24V)</td>
+          <td>Detecta paso de materiales poliméricos/plásticos frente a estación 2 (Cilindro 2A1).</td>
+        </tr>
+        <tr>
+          <td class="mono">1B1 (a0)</td>
+          <td>Fin de Carrera</td>
+          <td>Sensor Magnético Reed (1A1)</td>
+          <td class="mono">Reed NA (en 0 mm)</td>
+          <td>Confirma cilindro 1A1 retraído en origen; condición obligatoria para mover cinta M1.</td>
+        </tr>
+        <tr>
+          <td class="mono">1B2 (a1)</td>
+          <td>Fin de Carrera</td>
+          <td>Sensor Magnético Reed (1A1)</td>
+          <td class="mono">Reed NA (en 100 mm)</td>
+          <td>Confirma expulsión metálica completa (100 mm); ordena el corte de 1Y1 para el retorno.</td>
+        </tr>
+        <tr>
+          <td class="mono">2B1 (b0)</td>
+          <td>Fin de Carrera</td>
+          <td>Sensor Magnético Reed (2A1)</td>
+          <td class="mono">Reed NA (en 0 mm)</td>
+          <td>Confirma cilindro 2A1 retraído en reposo; condición de seguridad para avance de cinta.</td>
+        </tr>
+        <tr>
+          <td class="mono">2B2 (b1)</td>
+          <td>Fin de Carrera</td>
+          <td>Sensor Magnético Reed (2A1)</td>
+          <td class="mono">Reed NA (en 100 mm)</td>
+          <td>Confirma expulsión plástica completa (100 mm); desenergiza 2Y1 para el retorno por muelle.</td>
+        </tr>
+        <tr>
+          <td class="mono">P1 (%I0.6)</td>
+          <td>Sensor Presión</td>
+          <td>Presostato Electroneumático FRL</td>
+          <td class="mono">NA (umbral ≥ 5,0b)</td>
+          <td>Supervisa presión neumática en colector FRL; ante presión &lt; 5,0 bar bloquea la planta.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="sub-title">2.2. Etapa de Proceso (Lógica Secuencial y Enclavamientos)</div>
+    <p>
+      El procesamiento lógico evalúa en ciclo continuo (<b>PLC</b> / lógica cableada a <b>24V DC</b>) el vector de entradas para determinar el estado seguro de la planta: interbloquea el motor <b>KM1</b> con la posición de los cilindros (<b>1B1 · 2B1 · /K2 · /K3</b>), memoriza la habilitación de pieza en tránsito (<b>KB1</b>), aplica arbitraje con prioridad metálica ante colisión de sensórica (<b>/B2</b> en rama plástica) y ejecuta watchdogs de tiempo para evitar atascos mecánicos.
+    </p>
+
+    <div class="sub-title">2.3. Tabla Maestra de Salidas (Pre-actuadores, Actuadores e Indicadores)</div>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th style="width: 15%;">Identificador</th>
+          <th style="width: 18%;">Tipo de Salida</th>
+          <th style="width: 32%;">Actuador Físico Vinculado</th>
+          <th style="width: 35%;">Efecto Físico sobre la Planta Mecatrónica</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="mono">KM1 ➔ M1</td>
+          <td>Motor Eléctrico</td>
+          <td>Contactor KM1 + Motorreductor trifásico M1</td>
+          <td>Tracciona los rodillos de la cinta continua a velocidad regulada de 120 mm/s.</td>
+        </tr>
+        <tr>
+          <td class="mono">1Y1 ➔ 1V1 ➔ 1A1</td>
+          <td>Electroneumática</td>
+          <td>Solenoide 1Y1 (EV 5/2 monoestable) + Cilindro 1A1</td>
+          <td>Conmuta presión a cámara trasera: avance rápido A+ para expulsar metal hacia Tolva 1.</td>
+        </tr>
+        <tr>
+          <td class="mono">2Y1 ➔ 2V1 ➔ 2A1</td>
+          <td>Electroneumática</td>
+          <td>Solenoide 2Y1 (EV 5/2 monoestable) + Cilindro 2A1</td>
+          <td>Conmuta presión a cámara trasera: avance rápido B+ para desviar plástico hacia Tolva 2.</td>
+        </tr>
+        <tr>
+          <td class="mono">H1 (Piloto Verde)</td>
+          <td>Señalización</td>
+          <td>Columna luminosa Andon (LED Verde)</td>
+          <td>Indica máquina energizada y en régimen automático de marcha (K1=1).</td>
+        </tr>
+        <tr>
+          <td class="mono">H2 (Piloto Ámbar)</td>
+          <td>Señalización</td>
+          <td>Columna luminosa Andon (LED Amarillo)</td>
+          <td>Señala maniobra de clasificación activa y movimiento de cilindros (K2+K3=1).</td>
+        </tr>
+        <tr>
+          <td class="mono">H3 (Piloto Rojo/Buzzer)</td>
+          <td>Señalización / Alarma</td>
+          <td>Columna Andon (LED Rojo destellante + Sirena)</td>
+          <td>Indica bloqueo por falla (KF=1): emergencia S0, baja presión P1 o timeout de carrera.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="sub-title">2.4. Tabla de Polaridades, Contactos Físicos y Convención Lógica (IEC 61131-3)</div>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th style="width: 16%;">Señal de Entrada</th>
+          <th style="width: 22%;">Contacto Físico</th>
+          <th style="width: 28%;">Estado en Reposo (24V DC)</th>
+          <th style="width: 34%;">Interpretación Lógica en Ecuaciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="mono">S0 / S2</td>
+          <td>NC (Normal Cerrado Fail-Safe)</td>
+          <td>Cerrado (24V DC aplicados)</td>
+          <td class="mono">1 = Sin emergencia / Sin parada activa</td>
+        </tr>
+        <tr>
+          <td class="mono">S1 / S3</td>
+          <td>NA (Normal Abierto)</td>
+          <td>Abierto (0V DC)</td>
+          <td class="mono">1 = Pulso activo de arranque o de rearme</td>
+        </tr>
+        <tr>
+          <td class="mono">P1 (Presostato)</td>
+          <td>NA neumático</td>
+          <td>Cerrado con red presurizada (≥5 bar)</td>
+          <td class="mono">1 = Presión de aire conforme a régimen</td>
+        </tr>
+        <tr>
+          <td class="mono">B1 / B2 / B3</td>
+          <td>PNP NA (3 hilos)</td>
+          <td>Abierto sin pieza frente a óptica</td>
+          <td class="mono">1 = Objeto / material detectado en cabezal</td>
+        </tr>
+        <tr>
+          <td class="mono">1B1 / 2B1</td>
+          <td>Reed NA (magnético en 0 mm)</td>
+          <td>Cerrado por campo de imán en émbolo</td>
+          <td class="mono">1 = Cilindro totalmente retraído en origen</td>
+        </tr>
+        <tr>
+          <td class="mono">1B2 / 2B2</td>
+          <td>Reed NA (magnético en 100 mm)</td>
+          <td>Abierto en posición de reposo</td>
+          <td class="mono">1 = Cilindro al final de carrera de avance</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="running-footer">
+      <span>UTN Facultad Regional Paraná · Mecatrónica II</span>
+      <span>Página 2 de 5</span>
+    </div>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- PÁGINA 3: PUNTO 3 - DIAGRAMA EN BLOQUES DEL SISTEMA COMPLETO          -->
+  <!-- ===================================================================== -->
+  <div class="page">
+    <div class="running-header">
+      <span>UTN Facultad Regional Paraná · Mecatrónica II — Modelado y Simulación en Cade simu</span>
+      <span>Alumno: Hugo Ariel Martinez · Pág. 3 de 5</span>
+    </div>
+
+    <div class="sec-title">3. Diagrama en Bloques del Sistema Mecatrónico (Consigna Punto 3)</div>
+    <p>
+      El modelado estructural del sistema se basa en la teoría general de sistemas mecatrónicos de <b>lazo cerrado</b>. Se diferencian rigurosamente tres flujos que interactúan de forma armónica: el <b>Flujo de Señales de Control e Información</b> (líneas continuas), el <b>Flujo de Energía Eléctrica y Neumática</b> (líneas superiores de potencia) y el <b>Flujo de Materia</b> (piezas sólidas transportadas), cerrado mediante la <b>Realimentación Sensorial (Feedback)</b>.
+    </p>
+
+    <div class="svg-container" style="padding: 6px;">
+      <svg viewBox="0 0 740 250" width="100%" height="auto">
+        <!-- Bloque Maestro Contenedor -->
+        <rect x="4" y="4" width="732" height="242" rx="6" fill="#f8fafc" stroke="#004b87" stroke-width="1.4"/>
+        <text x="370" y="18" fill="#004b87" font-size="8.8" font-weight="800" text-anchor="middle">ESTRUCTURA FUNCIONAL EN BLOQUES — SISTEMA MECATRÓNICO CLASIFICADOR</text>
+
+        <!-- Bloque Superior: Acondicionamiento Energético -->
+        <g transform="translate(60, 26)">
+          <rect x="0" y="0" width="620" height="26" rx="4" fill="#f0f9ff" stroke="#0284c7" stroke-width="1.2"/>
+          <text x="310" y="12" fill="#0369a1" font-size="7.8" font-weight="800" text-anchor="middle">SUBSISTEMA DE SUMINISTRO Y ACONDICIONAMIENTO ENERGÉTICO</text>
+          <text x="310" y="21" fill="#475569" font-size="6.8" font-weight="600" text-anchor="middle">Fuente 24V DC Mando · Red de Fuerza 380V AC (Motor M1) · Compresor + Unidad FRL 0Z1 a 6,0 bar</text>
+        </g>
+
+        <!-- Flechas de Energía hacia pre-actuadores y actuadores -->
+        <path d="M 370,52 L 370,68" fill="none" stroke="#0284c7" stroke-width="1.5" stroke-dasharray="4 2"/>
+        <polygon points="370,72 367,65 373,65" fill="#0284c7"/>
+        
+        <path d="M 525,52 L 525,68" fill="none" stroke="#0284c7" stroke-width="1.5" stroke-dasharray="4 2"/>
+        <polygon points="525,72 522,65 528,65" fill="#0284c7"/>
+
+        <!-- 1. Subsistema de Entrada -->
+        <g transform="translate(16, 74)">
+          <rect x="0" y="0" width="135" height="98" rx="4" fill="#ffffff" stroke="#16a34a" stroke-width="1.4"/>
+          <rect x="0" y="0" width="135" height="18" rx="4" fill="#dcfce7"/>
+          <text x="67" y="12" fill="#15803d" font-size="7.2" font-weight="800" text-anchor="middle">1. ENTRADAS Y SENSORES</text>
+          <text x="8" y="32" fill="#0f172a" font-size="6.9" font-weight="700">• Parada Emergencia S0 (NC)</text>
+          <text x="8" y="44" fill="#0f172a" font-size="6.9" font-weight="700">• Pulsadores Marcha/Parada S1/S2</text>
+          <text x="8" y="56" fill="#0f172a" font-size="6.9" font-weight="700">• Pulsador Rearme Reset S3</text>
+          <text x="8" y="68" fill="#0f172a" font-size="6.9" font-weight="700">• Presostato FRL P1 (≥5 bar)</text>
+          <text x="8" y="80" fill="#0f172a" font-size="6.9" font-weight="700">• Sensor Óptico Ingreso B1</text>
+          <text x="8" y="92" fill="#0f172a" font-size="6.9" font-weight="700">• Sensores Material B2 / B3</text>
+        </g>
+
+        <!-- Flecha 1 -> 2 -->
+        <path d="M 151,123 L 169,123" fill="none" stroke="#0f172a" stroke-width="1.6"/>
+        <polygon points="173,123 166,120 166,126" fill="#0f172a"/>
+        <text x="162" y="117" fill="#64748b" font-size="6" font-weight="700">24V</text>
+
+        <!-- 2. Subsistema de Proceso -->
+        <g transform="translate(174, 74)">
+          <rect x="0" y="0" width="145" height="98" rx="4" fill="#ffffff" stroke="#004b87" stroke-width="1.4"/>
+          <rect x="0" y="0" width="145" height="18" rx="4" fill="#e0f2fe"/>
+          <text x="72" y="12" fill="#004b87" font-size="7.2" font-weight="800" text-anchor="middle">2. PROCESO Y CONTROL</text>
+          <text x="8" y="32" fill="#0f172a" font-size="6.9" font-weight="700">• Lógica Secuencial (PLC / Cade)</text>
+          <text x="8" y="44" fill="#0f172a" font-size="6.9" font-weight="700">• Memoria Marcha K1 (S1/S2)</text>
+          <text x="8" y="56" fill="#0f172a" font-size="6.9" font-weight="700">• Bloqueo de Falla KF (S3)</text>
+          <text x="8" y="68" fill="#0f172a" font-size="6.9" font-weight="700">• Validación Tránsito KB1 (B1)</text>
+          <text x="8" y="80" fill="#0f172a" font-size="6.9" font-weight="700">• Enclavamiento Metal K2 (A+/A-)</text>
+          <text x="8" y="92" fill="#0f172a" font-size="6.9" font-weight="700">• Enclavamiento Plást. K3 (B+/B-)</text>
+        </g>
+
+        <!-- Flecha 2 -> 3 -->
+        <path d="M 319,123 L 338,123" fill="none" stroke="#0f172a" stroke-width="1.6"/>
+        <polygon points="342,123 335,120 335,126" fill="#0f172a"/>
+
+        <!-- 3. Subsistema de Pre-actuación -->
+        <g transform="translate(343, 74)">
+          <rect x="0" y="0" width="135" height="98" rx="4" fill="#ffffff" stroke="#d97706" stroke-width="1.4"/>
+          <rect x="0" y="0" width="135" height="18" rx="4" fill="#fef3c7"/>
+          <text x="67" y="12" fill="#b45309" font-size="7.2" font-weight="800" text-anchor="middle">3. PRE-ACTUADORES</text>
+          <text x="8" y="34" fill="#0f172a" font-size="6.9" font-weight="700">• Contactor de Fuerza KM1</text>
+          <text x="8" y="49" fill="#0f172a" font-size="6.9" font-weight="700">• Solenoide 1Y1 (Válvula 1V1)</text>
+          <text x="8" y="64" fill="#0f172a" font-size="6.9" font-weight="700">• Solenoide 2Y1 (Válvula 2V1)</text>
+          <text x="8" y="79" fill="#0f172a" font-size="6.9" font-weight="700">• Estranguladores 1V2 / 1V3</text>
+          <text x="8" y="92" fill="#0f172a" font-size="6.9" font-weight="700">• Estranguladores 2V2 / 2V3</text>
+        </g>
+
+        <!-- Flecha 3 -> 4 -->
+        <path d="M 478,123 L 496,123" fill="none" stroke="#0f172a" stroke-width="1.6"/>
+        <polygon points="500,123 493,120 493,126" fill="#0f172a"/>
+
+        <!-- 4. Subsistema de Salidas y Planta -->
+        <g transform="translate(501, 74)">
+          <rect x="0" y="0" width="145" height="98" rx="4" fill="#ffffff" stroke="#be123c" stroke-width="1.4"/>
+          <rect x="0" y="0" width="145" height="18" rx="4" fill="#ffe4e6"/>
+          <text x="72" y="12" fill="#be123c" font-size="7.2" font-weight="800" text-anchor="middle">4. ACTUADORES Y PLANTA</text>
+          <text x="8" y="32" fill="#0f172a" font-size="6.9" font-weight="700">• Motorreductor Cinta M1</text>
+          <text x="8" y="44" fill="#0f172a" font-size="6.9" font-weight="700">• Cilindro 1A1 (Expulsor Metal)</text>
+          <text x="8" y="56" fill="#0f172a" font-size="6.9" font-weight="700">• Cilindro 2A1 (Expulsor Plást.)</text>
+          <text x="8" y="68" fill="#0f172a" font-size="6.9" font-weight="700">• Baliza Andon H1, H2, H3</text>
+          <text x="8" y="80" fill="#0f172a" font-size="6.9" font-weight="700">• Tolva 1 (Metal) / Tolva 2 (Plást)</text>
+          <text x="8" y="92" fill="#0f172a" font-size="6.9" font-weight="700">• Tolva 3 (Descarte Gravitacional)</text>
+        </g>
+
+        <!-- Flujo de Material (Entrada de piezas -> Salida de Tolvas) -->
+        <path d="M 646,123 L 725,123" fill="none" stroke="#0f172a" stroke-width="2"/>
+        <polygon points="729,123 722,120 722,126" fill="#0f172a"/>
+        <text x="688" y="116" fill="#0f172a" font-size="6.6" font-weight="800" text-anchor="middle">PIEZAS</text>
+        <text x="688" y="134" fill="#16a34a" font-size="6.2" font-weight="700" text-anchor="middle">CLASIFICADAS</text>
+
+        <!-- 5. Subsistema de Realimentación (Lazo Cerrado) -->
+        <g transform="translate(174, 186)">
+          <rect x="0" y="0" width="472" height="46" rx="4" fill="#fdf4ff" stroke="#a21caf" stroke-width="1.3"/>
+          <text x="236" y="13" fill="#86198f" font-size="7.5" font-weight="800" text-anchor="middle">5. LAZO DE REALIMENTACIÓN SENSORIAL (FEEDBACK EN LAZO CERRADO)</text>
+          <text x="236" y="27" fill="#0f172a" font-size="7" font-weight="600" text-anchor="middle">Fines de Carrera Magnéticos Reed: 1B1 (a0=0mm) y 1B2 (a1=100mm) en Cilindro 1A1</text>
+          <text x="236" y="39" fill="#0f172a" font-size="7" font-weight="600" text-anchor="middle">Fines de Carrera Magnéticos Reed: 2B1 (b0=0mm) y 2B2 (b1=100mm) en Cilindro 2A1</text>
+        </g>
+
+        <!-- Líneas de retorno de Feedback -->
+        <path d="M 573,172 L 573,186" fill="none" stroke="#a21caf" stroke-width="1.5"/>
+        <polygon points="573,186 570,179 576,179" fill="#a21caf"/>
+
+        <path d="M 174,209 L 100,209 L 100,172" fill="none" stroke="#a21caf" stroke-width="1.5" stroke-dasharray="3 2"/>
+        <polygon points="100,172 97,179 103,179" fill="#a21caf"/>
+        <text x="135" y="204" fill="#a21caf" font-size="6.6" font-weight="800">Cierre de Lazo</text>
+      </svg>
+      <div class="svg-caption">Figura 3.1: Diagrama en bloques completo de lazo cerrado según la teoría general de sistemas mecatrónicos.</div>
+    </div>
+
+    <div class="sub-title">3.1. Análisis Detallado de los Subsistemas Funcionales</div>
+    <ul style="margin: 0; padding-left: 14px; font-size: 7.7pt; line-height: 1.34;">
+      <li><b>1. Adquisición de Señales:</b> Los transductores capturan el estado físico del entorno (presión de contacto, permeabilidad ferromagnética, permitividad dieléctrica, posición de imanes de émbolos y presión barométrica) y los acondicionan a niveles lógicos de <b>0V / 24V DC</b>.</li>
+      <li><b>2. Procesamiento Lógico y Enclavamiento:</b> Implementa la arquitectura de mando secuencial (prevista para cableado con relés industriales en CADe SIMU). Su misión principal es la protección de la integridad de la máquina: inhibe el giro de la cinta mientras un cilindro esté actuando (<b>/K2 · /K3</b>).</li>
+      <li><b>3. Pre-actuación y Modulación:</b> Los relés y contactores de mando (<b>KM1, 1Y1, 2Y1</b>) conmutan corrientes elevadas de potencia a partir de señales de comando de baja potencia (<b>~100 mA</b>), mientras las válvulas estranguladoras regulan la velocidad neumática.</li>
+      <li><b>4. Actuación Mecánica y Planta:</b> Transforma potencia eléctrica en rotación cinemática (<b>M1</b>) y potencia fluídica en fuerza axial (<b>F = P · A</b>) expulsando las piezas hacia los canales de acopio.</li>
+      <li><b>5. Realimentación Sensorial (Feedback):</b> Transmite la confirmación física inequívoca de fin de recorrido (<b>1B2, 2B2</b>) y regreso seguro a origen (<b>1B1, 2B1</b>). Sin esta realimentación, el sistema sería en lazo abierto y vulnerable a atascos destructivos.</li>
+    </ul>
+
+    <div class="running-footer">
+      <span>UTN Facultad Regional Paraná · Mecatrónica II</span>
+      <span>Página 3 de 5</span>
+    </div>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- PÁGINA 4: PUNTO 4 - DESARROLLO DE LA LÓGICA DE FUNCIONAMIENTO         -->
+  <!-- ===================================================================== -->
+  <div class="page">
+    <div class="running-header">
+      <span>UTN Facultad Regional Paraná · Mecatrónica II — Modelado y Simulación en Cade simu</span>
+      <span>Alumno: Hugo Ariel Martinez · Pág. 4 de 5</span>
+    </div>
+
+    <div class="sec-title">4. Desarrollo de la Lógica de Funcionamiento y GRAFCET (Consigna Punto 4)</div>
+    <p>
+      El gobierno secuencial se modela mediante ecuaciones lógicas booleanas normalizadas para su posterior implementación en <b>Cade simu</b> mediante circuito de mando electromecánico (relés auxiliares <b>KF, K1, KB1, K2, K3</b>), junto con el modelado formal <b>GRAFCET (Norma IEC 60848)</b> y su <b>Diagrama Espacio-Fase</b>.
+    </p>
+
+    <div class="sub-title">4.1. Ecuaciones Booleanas del Circuito de Mando y Watchdogs de Seguridad</div>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th style="width: 22%;">Variable de Salida</th>
+          <th style="width: 36%;">Ecuación Lógica Normalizada</th>
+          <th style="width: 42%;">Justificación Técnica y Seguridad Industrial</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="mono">KF (Memoria Bloqueo)</td>
+          <td class="mono">KF = (/S0 + /P1 + ALM_WD + KF) · /S3</td>
+          <td>Enclava alarma ante emergencia (<b>S0=0</b>), baja presión (<b>P1=0</b>) o watchdog (<b>ALM_WD=1</b>). Requiere pulsar <b>S3 (Rearme)</b> para rehabilitar.</td>
+        </tr>
+        <tr>
+          <td class="mono">K1 (Memoria Marcha)</td>
+          <td class="mono">K1 = S0 · S2 · P1 · /KF · (S1 + K1)</td>
+          <td>Circuito marcha/parada con retención. Prioridad a la desconexión. Solo enclava si la planta está libre de fallo (<b>/KF=1</b>).</td>
+        </tr>
+        <tr>
+          <td class="mono">KB1 (Validación Tránsito)</td>
+          <td class="mono">KB1 = K1 · (B1 + KB1) · /Fin_Lote</td>
+          <td>El sensor óptico <b>B1</b> valida la entrada de pieza, habilita las ramas expulsoras y vigila atasco (si <b>B1=1 &gt; 3,0 s ➔ ALM_WD</b>).</td>
+        </tr>
+        <tr>
+          <td class="mono">KM1 (Contactor Cinta)</td>
+          <td class="mono">KM1 = K1 · 1B1 · 2B1 · /K2 · /K3</td>
+          <td>La cinta tracciona solo si <b>K1=1</b>, ambos vástagos están en reposo (<b>1B1 · 2B1</b>) y no hay ciclo de expulsión en curso (<b>/K2 · /K3</b>).</td>
+        </tr>
+        <tr>
+          <td class="mono">K2 / 1Y1 (Ciclo Metal)</td>
+          <td class="mono">1Y1 = K2 = K1 · KB1 · (B2·1B1 + K2) · /1B2</td>
+          <td>Con pieza validada (<b>KB1</b>), si el inductivo <b>B2=1</b>, se enclava <b>K2</b> y avanza <b>1A1 (A+)</b>. Al tocar <b>1B2</b>, cae <b>K2</b> y retorna por muelle (<b>A-</b>).</td>
+        </tr>
+        <tr>
+          <td class="mono">K3 / 2Y1 (Ciclo Plástico)</td>
+          <td class="mono">2Y1 = K3 = K1 · KB1 · (B3·/B2·/K2·2B1 + K3) · /2B2</td>
+          <td>Si el capacitivo <b>B3=1</b>, activa <b>2Y1 (B+)</b> hasta <b>2B2</b>. Incluye bloqueo <b>/B2 · /K2</b> que prioriza la rama metálica ante conflicto <b>B2 · B3</b>.</td>
+        </tr>
+        <tr>
+          <td class="mono">ALM_WD (Watchdogs)</td>
+          <td class="mono">WD = (Y·/B2 > 1,5s) + (/Y·/B1 > 2,0s) + (B2·B3 > 1s)</td>
+          <td>Vigila fallos mecánicos: avance <b>&gt; 1,5 s</b> sin alcanzar fin de carrera, retorno <b>&gt; 2,0 s</b>, conflicto <b>B2 · B3 &gt; 1,0 s</b> o atasco <b>B1 &gt; 3,0 s</b>.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="sub-title">4.2. Modelado Secuencial GRAFCET (IEC 60848) y Diagrama Espacio-Fase Sincronizado</div>
+    <div class="svg-container" style="padding: 4px;">
+      <svg viewBox="0 0 740 236" width="100%" height="auto">
+        <!-- LADO IZQUIERDO: GRAFCET IEC 60848 -->
+        <rect x="4" y="4" width="360" height="228" rx="5" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.2"/>
+        <text x="184" y="19" fill="#004b87" font-size="8.4" font-weight="800" text-anchor="middle">GRAFCET DEL SISTEMA CLASIFICADOR (IEC 60848)</text>
+
+        <!-- Etapa 0 -->
+        <rect x="160" y="26" width="46" height="22" fill="#ffffff" stroke="#004b87" stroke-width="2"/>
+        <rect x="164" y="30" width="38" height="14" fill="#e0f2fe" stroke="#004b87" stroke-width="1"/>
+        <text x="183" y="41" fill="#004b87" font-size="8.5" font-weight="800" text-anchor="middle">0</text>
+        <line x1="183" y1="48" x2="183" y2="64" stroke="#0f172a" stroke-width="1.5"/>
+        <line x1="173" y1="56" x2="193" y2="56" stroke="#0f172a" stroke-width="2"/>
+        <text x="198" y="59" fill="#166534" font-size="6.8" font-weight="700">S1 · S0 · S2 · P1 · /KF · 1B1 · 2B1</text>
+
+        <!-- Etapa 1 -->
+        <rect x="160" y="64" width="46" height="22" fill="#dcfce7" stroke="#166534" stroke-width="1.8"/>
+        <text x="183" y="79" fill="#166534" font-size="8.5" font-weight="800" text-anchor="middle">1</text>
+        <line x1="206" y1="75" x2="218" y2="75" stroke="#166534" stroke-width="1.5"/>
+        <rect x="218" y="65" width="138" height="20" fill="#ffffff" stroke="#166534" stroke-width="1.2"/>
+        <text x="287" y="78" fill="#0f172a" font-size="7" font-weight="700" text-anchor="middle">KM1 (Cinta) + H1 + KB1 (si B1=1)</text>
+
+        <!-- Divergencia en O -->
+        <line x1="183" y1="86" x2="183" y2="98" stroke="#0f172a" stroke-width="1.5"/>
+        <line x1="90" y1="98" x2="275" y2="98" stroke="#0f172a" stroke-width="1.5"/>
+
+        <!-- Rama A: Metal (2 y 3) -->
+        <line x1="90" y1="98" x2="90" y2="116" stroke="#0f172a" stroke-width="1.5"/>
+        <line x1="80" y1="107" x2="100" y2="107" stroke="#0f172a" stroke-width="2"/>
+        <text x="104" y="110" fill="#0369a1" font-size="6.8" font-weight="700">KB1 · B2 · 1B1</text>
+
+        <rect x="70" y="116" width="40" height="20" fill="#e0f2fe" stroke="#0284c7" stroke-width="1.5"/>
+        <text x="90" y="130" fill="#0369a1" font-size="8" font-weight="800" text-anchor="middle">2</text>
+        <rect x="114" y="116" width="60" height="20" fill="#fff" stroke="#0284c7" stroke-width="1.2"/>
+        <text x="144" y="129" fill="#0f172a" font-size="7" font-weight="700" text-anchor="middle">1Y1 (1A1+)</text>
+
+        <line x1="90" y1="136" x2="90" y2="154" stroke="#0f172a" stroke-width="1.5"/>
+        <line x1="80" y1="145" x2="100" y2="145" stroke="#0f172a" stroke-width="2"/>
+        <text x="104" y="148" fill="#6b21a8" font-size="6.8" font-weight="700">1B2 (a1=100mm)</text>
+
+        <rect x="70" y="154" width="40" height="20" fill="#f3e8ff" stroke="#6b21a8" stroke-width="1.5"/>
+        <text x="90" y="168" fill="#6b21a8" font-size="8" font-weight="800" text-anchor="middle">3</text>
+        <rect x="114" y="154" width="60" height="20" fill="#fff" stroke="#6b21a8" stroke-width="1.2"/>
+        <text x="144" y="167" fill="#0f172a" font-size="7" font-weight="700" text-anchor="middle">1A1- (Muelle)</text>
+
+        <line x1="90" y1="174" x2="90" y2="196" stroke="#0f172a" stroke-width="1.5"/>
+        <line x1="80" y1="185" x2="100" y2="185" stroke="#0f172a" stroke-width="2"/>
+        <text x="104" y="188" fill="#6b21a8" font-size="6.8" font-weight="700">1B1 (a0=0mm)</text>
+
+        <!-- Rama B: Plástico (4 y 5) -->
+        <line x1="275" y1="98" x2="275" y2="116" stroke="#0f172a" stroke-width="1.5"/>
+        <line x1="265" y1="107" x2="285" y2="107" stroke="#0f172a" stroke-width="2"/>
+        <text x="260" y="110" fill="#b45309" font-size="6.7" font-weight="700" text-anchor="end">KB1 · B3 · /B2 · 2B1</text>
+
+        <rect x="255" y="116" width="40" height="20" fill="#fef3c7" stroke="#d97706" stroke-width="1.5"/>
+        <text x="275" y="130" fill="#b45309" font-size="8" font-weight="800" text-anchor="middle">4</text>
+        <rect x="298" y="116" width="58" height="20" fill="#fff" stroke="#d97706" stroke-width="1.2"/>
+        <text x="327" y="129" fill="#0f172a" font-size="7" font-weight="700" text-anchor="middle">2Y1 (2A1+)</text>
+
+        <line x1="275" y1="136" x2="275" y2="154" stroke="#0f172a" stroke-width="1.5"/>
+        <line x1="265" y1="145" x2="285" y2="145" stroke="#0f172a" stroke-width="2"/>
+        <text x="260" y="148" fill="#6b21a8" font-size="6.8" font-weight="700" text-anchor="end">2B2 (b1=100mm)</text>
+
+        <rect x="255" y="154" width="40" height="20" fill="#f3e8ff" stroke="#6b21a8" stroke-width="1.5"/>
+        <text x="275" y="168" fill="#6b21a8" font-size="8" font-weight="800" text-anchor="middle">5</text>
+        <rect x="298" y="154" width="58" height="20" fill="#fff" stroke="#6b21a8" stroke-width="1.2"/>
+        <text x="327" y="167" fill="#0f172a" font-size="7" font-weight="700" text-anchor="middle">2A1- (Muelle)</text>
+
+        <line x1="275" y1="174" x2="275" y2="196" stroke="#0f172a" stroke-width="1.5"/>
+        <line x1="265" y1="185" x2="285" y2="185" stroke="#0f172a" stroke-width="2"/>
+        <text x="260" y="188" fill="#6b21a8" font-size="6.8" font-weight="700" text-anchor="end">2B1 (b0=0mm)</text>
+
+        <!-- Convergencia -->
+        <line x1="90" y1="196" x2="275" y2="196" stroke="#0f172a" stroke-width="1.5"/>
+        <path d="M 183,196 L 183,214 L 32,214 L 32,75 L 160,75" fill="none" stroke="#004b87" stroke-width="1.4" stroke-dasharray="4 2"/>
+        <polygon points="160,75 153,72 153,78" fill="#004b87"/>
+
+        <!-- LADO DERECHO: DIAGRAMA ESPACIO-FASE -->
+        <rect x="374" y="4" width="360" height="228" rx="5" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.2"/>
+        <text x="554" y="19" fill="#004b87" font-size="8.4" font-weight="800" text-anchor="middle">DIAGRAMA ESPACIO-FASE SINCRONIZADO</text>
+
+        <g transform="translate(435, 38)">
+          <!-- Grilla vertical de fases -->
+          <line x1="0" y1="0" x2="0" y2="174" stroke="#94a3b8" stroke-width="1"/>
+          <line x1="46" y1="0" x2="46" y2="174" stroke="#cbd5e1" stroke-dasharray="3 2"/>
+          <line x1="92" y1="0" x2="92" y2="174" stroke="#cbd5e1" stroke-dasharray="3 2"/>
+          <line x1="138" y1="0" x2="138" y2="174" stroke="#cbd5e1" stroke-dasharray="3 2"/>
+          <line x1="184" y1="0" x2="184" y2="174" stroke="#cbd5e1" stroke-dasharray="3 2"/>
+          <line x1="230" y1="0" x2="230" y2="174" stroke="#cbd5e1" stroke-dasharray="3 2"/>
+          <line x1="276" y1="0" x2="276" y2="174" stroke="#94a3b8" stroke-width="1"/>
+
+          <text x="23" y="-5" fill="#475569" font-size="7" font-weight="700" text-anchor="middle">Transp.</text>
+          <text x="69" y="-5" fill="#0284c7" font-size="7" font-weight="700" text-anchor="middle">1A1+ (A+)</text>
+          <text x="115" y="-5" fill="#0284c7" font-size="7" font-weight="700" text-anchor="middle">1A1- (A-)</text>
+          <text x="161" y="-5" fill="#475569" font-size="7" font-weight="700" text-anchor="middle">Transp.</text>
+          <text x="207" y="-5" fill="#d97706" font-size="7" font-weight="700" text-anchor="middle">2A1+ (B+)</text>
+          <text x="253" y="-5" fill="#d97706" font-size="7" font-weight="700" text-anchor="middle">2A1- (B-)</text>
+
+          <!-- Track 1: KM1 Cinta -->
+          <text x="-8" y="22" fill="#166534" font-size="7.5" font-weight="800" text-anchor="end">KM1 (Cinta)</text>
+          <line x1="0" y1="32" x2="276" y2="32" stroke="#cbd5e1"/>
+          <polyline points="0,10 46,10 46,32 138,32 138,10 184,10 184,32 276,32" fill="none" stroke="#166534" stroke-width="2.2"/>
+
+          <!-- Track 2: Cilindro 1A1 (mm) -->
+          <text x="-8" y="78" fill="#0284c7" font-size="7.5" font-weight="800" text-anchor="end">1A1 (mm)</text>
+          <line x1="0" y1="94" x2="276" y2="94" stroke="#cbd5e1"/>
+          <line x1="0" y1="56" x2="276" y2="56" stroke="#cbd5e1"/>
+          <polyline points="0,94 46,94 92,56 138,94 276,94" fill="none" stroke="#0284c7" stroke-width="2.2"/>
+          <circle cx="92" cy="56" r="3" fill="#6b21a8"/>
+          <text x="92" y="51" fill="#6b21a8" font-size="6.5" font-weight="700" text-anchor="middle">1B2(a1)</text>
+          <circle cx="138" cy="94" r="3" fill="#166534"/>
+          <text x="138" y="105" fill="#166534" font-size="6.5" font-weight="700" text-anchor="middle">1B1(a0)</text>
+
+          <!-- Track 3: Cilindro 2A1 (mm) -->
+          <text x="-8" y="142" fill="#d97706" font-size="7.5" font-weight="800" text-anchor="end">2A1 (mm)</text>
+          <line x1="0" y1="158" x2="276" y2="158" stroke="#cbd5e1"/>
+          <line x1="0" y1="120" x2="276" y2="120" stroke="#cbd5e1"/>
+          <polyline points="0,158 184,158 230,120 276,158" fill="none" stroke="#d97706" stroke-width="2.2"/>
+          <circle cx="230" cy="120" r="3" fill="#6b21a8"/>
+          <text x="230" y="115" fill="#6b21a8" font-size="6.5" font-weight="700" text-anchor="middle">2B2(b1)</text>
+          <circle cx="276" cy="158" r="3" fill="#166534"/>
+          <text x="268" y="169" fill="#166534" font-size="6.5" font-weight="700" text-anchor="middle">2B1(b0)</text>
+        </g>
+      </svg>
+      <div class="svg-caption">Figura 4.1: Modelado funcional secuencial (Izquierda: GRAFCET IEC 60848 · Derecha: Diagrama Espacio-Fase sincronizado).</div>
+    </div>
+
+    <div class="sub-title">4.3. Explicación Paso a Paso de la Secuencia Operativa</div>
+    <ol style="margin: 0; padding-left: 14px; font-size: 7.6pt; line-height: 1.34;">
+      <li><b>Etapa 0 (Condiciones Iniciales y Rearme):</b> Exige que la emergencia esté deshabilitada (<b>S0=1</b>), presión correcta (<b>P1=1</b>), relé de fallo desenclavado tras rearme (<b>/KF=1</b>) y ambos vástagos en posición de reposo (<b>1B1 · 2B1</b>).</li>
+      <li><b>Etapa 1 (Arranque de Tracción y Validación B1):</b> Al presionar <b>S1</b>, se enclava <b>K1</b>, enciende la luz verde <b>H1</b> y entra el contactor <b>KM1</b>. La pieza pasa por la barrera <b>B1</b>, activando la memoria retentiva de tránsito <b>KB1</b>.</li>
+      <li><b>Etapas 2 y 3 (Rama A - Clasificación Metálica):</b> Al tocar <b>B2</b>, se enclava <b>K2</b>, pausando la cinta (<b>/K2</b> abre <b>KM1</b>) y energizando la electroválvula <b>1Y1</b>. El cilindro <b>1A1</b> avanza (<b>A+</b>) empujando la pieza a Tolva 1. Al cerrar el fin de carrera <b>1B2</b>, cae <b>K2/1Y1</b> y el resorte retorna el vástago (<b>A-</b>) hasta <b>1B1</b>, reanudando la cinta.</li>
+      <li><b>Etapas 4 y 5 (Rama B - Clasificación Plástica):</b> La pieza polimérica no activa <b>B2</b> y al llegar a <b>B3</b> entra <b>K3</b>, detiene la cinta y energiza <b>2Y1</b> extendiendo <b>2A1 (B+)</b> hacia Tolva 2. Al tocar <b>2B2</b>, corta <b>2Y1</b> y regresa por muelle (<b>B-</b>) hasta <b>2B1</b>.</li>
+    </ol>
+
+    <div class="running-footer">
+      <span>UTN Facultad Regional Paraná · Mecatrónica II</span>
+      <span>Página 4 de 5</span>
+    </div>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- PÁGINA 5: TRAZABILIDAD V&V, PROYECCIÓN PUNTOS 5 Y 6 Y FIRMA           -->
+  <!-- ===================================================================== -->
+  <div class="page">
+    <div class="running-header">
+      <span>UTN Facultad Regional Paraná · Mecatrónica II — Modelado y Simulación en Cade simu</span>
+      <span>Alumno: Hugo Ariel Martinez · Pág. 5 de 5</span>
+    </div>
+
+    <div class="sec-title">5. Matriz de Trazabilidad y Verificación Funcional (V&amp;V)</div>
+    <p>
+      Para garantizar el cumplimiento estricto de los requisitos de ingeniería mecatrónica establecidos en las consignas 1 a 4, se correlacionan las funciones solicitadas con su elemento físico, su ecuación matemática y su criterio de validación:
+    </p>
+
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th style="width: 28%;">Requisito Funcional / de Seguridad</th>
+          <th style="width: 18%;">Elemento Asociado</th>
+          <th style="width: 34%;">Ecuación / Condición Lógica</th>
+          <th style="width: 10%;">Estado</th>
+          <th style="width: 10%;">Dictamen</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Validación de ingreso, conteo y vigilancia de atasco</td>
+          <td class="mono">B1 ➔ KB1</td>
+          <td class="mono">KB1 = K1·(B1+KB1)·/Fin | T_B1 &lt; 3,0s</td>
+          <td class="mono">Modelado</td>
+          <td class="mono" style="color: #166534; font-weight: 800;">CONFORME</td>
+        </tr>
+        <tr>
+          <td>Detección y desvío de piezas metálicas</td>
+          <td class="mono">B2 ➔ 1Y1 ➔ 1A1</td>
+          <td class="mono">1Y1 = K2 = K1·KB1·(B2·1B1+K2)·/1B2</td>
+          <td class="mono">Modelado</td>
+          <td class="mono" style="color: #166534; font-weight: 800;">CONFORME</td>
+        </tr>
+        <tr>
+          <td>Detección y desvío de piezas plásticas</td>
+          <td class="mono">B3 ➔ 2Y1 ➔ 2A1</td>
+          <td class="mono">2Y1 = K3 = K1·KB1·(B3·/B2·/K2·2B1+K3)·/2B2</td>
+          <td class="mono">Modelado</td>
+          <td class="mono" style="color: #166534; font-weight: 800;">CONFORME</td>
+        </tr>
+        <tr>
+          <td>Pausa de cinta durante carrera de vástagos</td>
+          <td class="mono">KM1 ➔ Motor M1</td>
+          <td class="mono">KM1 = K1 · 1B1 · 2B1 · /K2 · /K3</td>
+          <td class="mono">Modelado</td>
+          <td class="mono" style="color: #166534; font-weight: 800;">CONFORME</td>
+        </tr>
+        <tr>
+          <td>Arbitraje de conflicto B2/B3 y prioridad metal</td>
+          <td class="mono">B2 + B3 ➔ K2 / WD</td>
+          <td class="mono">Bloqueo /B2·/K2 en K3 | B2·B3 &gt; 1,0s ➔ KF</td>
+          <td class="mono">Modelado</td>
+          <td class="mono" style="color: #166534; font-weight: 800;">CONFORME</td>
+        </tr>
+        <tr>
+          <td>Supervisión de tiempos de carrera de cilindros</td>
+          <td class="mono">1B1/1B2, 2B1/2B2</td>
+          <td class="mono">Avance &gt; 1,5s | Retroceso &gt; 2,0s ➔ KF</td>
+          <td class="mono">Modelado</td>
+          <td class="mono" style="color: #166534; font-weight: 800;">CONFORME</td>
+        </tr>
+        <tr>
+          <td>Parada de emergencia, baja presión y rearme manual</td>
+          <td class="mono">S0, P1, S3 ➔ KF</td>
+          <td class="mono">KF = (/S0 + /P1 + ALM_WD + KF) · /S3</td>
+          <td class="mono">Modelado</td>
+          <td class="mono" style="color: #166534; font-weight: 800;">CONFORME</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="sec-title" style="margin-top: 8px;">6. Proyección y Arquitectura para las Próximas Etapas (Puntos 5 y 6: Cade simu)</div>
+    <p>
+      Tal como se estipula en la consigna de trabajo, el presente informe cubre exhaustivamente la <b>Etapa 1 (Puntos 1 al 4)</b> y sienta de manera formal la base teórica y algorítmica para la ejecución inmediata de las etapas subsiguientes en el software <b>Cade simu</b>:
+    </p>
+
+    <div class="grid-3" style="margin-top: 4px;">
+      <div class="card" style="border-left: 3px solid #004b87;">
+        <h4>Punto 5.1: Esquema de Fuerza</h4>
+        Diseño multifilar en Cade simu: Línea trifásica <b>3~ 380V + N + PE</b>, seccionador fusible/guardamotor <b>QM1</b>, contactor de potencia <b>KM1</b> con relé térmico <b>FR1</b> y motorreductor de inducción <b>M1</b> para el arrastre mecánico de la banda.
+      </div>
+      <div class="card" style="border-left: 3px solid #0284c7;">
+        <h4>Punto 5.2: Esquema de Mando</h4>
+        Circuito a <b>24V DC</b> (o <b>230V AC</b> con transformador): pulsadores <b>S0, S1, S2, S3</b>, relés auxiliares <b>KF</b> (fallo), <b>K1</b> (marcha), <b>K2</b> y <b>K3</b> (expulsores), bobinas de electroválvulas <b>1Y1</b> y <b>2Y1</b> y señalización óptica Andon <b>H1, H2, H3</b>.
+      </div>
+      <div class="card" style="border-left: 3px solid #16a34a;">
+        <h4>Puntos 5.3 y 6: Neumática y Test</h4>
+        Esquema neumático en Cade simu: Fuente de presión, FRL <b>0Z1</b>, válvulas <b>5/2</b> monoestables y cilindros de doble efecto <b>1A1</b> y <b>2A1</b> con sensores Reed magnéticos, junto con el protocolo de pruebas de validación funcional en clase.
+      </div>
+    </div>
+
+    <div class="alert-box">
+      <b>Conclusión de la Etapa 1:</b> El sistema mecatrónico queda completamente definido y modelado en sus dimensiones operativas, sensoriales, lógicas y cinemáticas. La formulación matemática y el GRAFCET IEC 60848 aseguran una translación unívoca y directa hacia el entorno de simulación de <b>Cade simu</b>.
+    </div>
+
+    <!-- BLOQUE DE FIRMA DEL ALUMNO (ENTREGA VIRTUAL) -->
+    <div style="margin-top: 14px; text-align: center;">
+      <div style="border-top: 1.5px solid #94a3b8; width: 44%; margin: 0 auto; padding-top: 4px; font-size: 8pt; line-height: 1.3;">
+        <b>Hugo Ariel Martinez</b><br>
+        <span style="color: #475569;">Alumno — Tecnicatura Superior en Mecatrónica</span><br>
+        <b>Universidad Tecnológica Nacional — Facultad Regional Paraná</b><br>
+        <span style="color: #64748b; font-size: 7.2pt;">Año Académico 2026 · Cátedra: Mecatrónica II</span>
+      </div>
+    </div>
+
+    <div class="running-footer">
+      <span>UTN Facultad Regional Paraná · Mecatrónica II</span>
+      <span>Página 5 de 5</span>
+    </div>
+  </div>
+
+</body>
+</html>
